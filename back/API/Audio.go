@@ -1,15 +1,14 @@
 package api
 
 import (
-	"fmt"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
-	"time"
-
+	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	ai "github.com/mohammedaouamri5/Aurora/AI"
+	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,19 +27,12 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 		return nil, "", nil
 	}
 
-	uploadDir := "uploads"
-	if _, err := os.Stat(uploadDir); os.IsNotExist(err) {
-		if err := os.Mkdir(uploadDir, os.ModePerm); err != nil {
-			log.Error("Failed to create upload directory:", err)
-			ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create upload directory"})
-			return nil, "", nil
-		}
-	}
-
 	// Generate a unique filename using timestamp
-	timestamp := time.Now().Format("20060102_150405") // e.g., 20240303_143010
-	newFileName := fmt.Sprintf("%s.wav", timestamp)
-	filePath := filepath.Join(uploadDir, newFileName)
+	filePath, err := utile.NowPath()
+	if err != nil {
+		log.Error(err)
+		return nil, "", err
+	}
 
 	// Save the file
 	if err := ctx.SaveUploadedFile(file, filePath); err != nil {
@@ -53,28 +45,71 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 }
 
 
-
-
-
 func Audio(ctx *gin.Context) {
-
-	// Open uploaded file
-	_, filePath, err := reciveAudio(ctx)
+	_, AudioInput, err := reciveAudio(ctx)
 	if err != nil {
-		log.Error("Failed to recive audio:", err)
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to recive audio"})
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 
+	TextInput, err := ai.Wisper(ctx, AudioInput)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
-	text, _ := ai.Wisper(ctx, filePath)
-	ai.Llm(ctx, text)
-	log.Info(text)
-	// wisper(ctx, "uploads/LJ037-0171.wav")
-	ctx.File(filePath)
+	TextOutput, err := ai.Llm(ctx, TextInput)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
+	AudioOutput, PhoniticsOutput, err := ai.Kokoro(ctx, TextOutput)
+	if err != nil {
+		log.Error(err)
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
 
+	// Read the audio file
+	audioData, err := os.ReadFile(AudioOutput)
+	if err != nil {
+		log.Error(err.Error())
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to load audio"})
+		return
+	}
 
+	// Encode audio file to Base64
+	audioBase64 := base64.StdEncoding.EncodeToString(audioData)
+
+	wave := ai.Wave{
+		AudioInput:      AudioInput,
+		TextInput:       TextInput,
+		AudioOutput:     AudioOutput,
+		TextOutput:      TextOutput,
+		PhoniticsOutput: PhoniticsOutput,
+	}
+
+	// Send JSON with Base64 audio
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":  wave,
+		"audio": audioBase64,
+	})
+}
+
+// New endpoint to serve the audio file
+func GetAudio(ctx *gin.Context) {
+	audioPath := ctx.Query("path") // Get audio file path from query params
+	if audioPath == "" {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Missing audio file path"})
+		return
+	}
+
+	ctx.Header("Content-Type", "audio/wav")
+	ctx.File(audioPath) // Serve the audio file
 }
 
 func Text(ctx *gin.Context) {

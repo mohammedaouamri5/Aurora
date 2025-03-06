@@ -1,1 +1,16 @@
-{"speakers": [], "chunks": [{"timestamp": [0.0, 5.48], "text": " The examination and testimony of the experts enabled the commission to conclude that"}, {"timestamp": [5.48, 7.4], "text": " five shots may have been fired."}], "text": " The examination and testimony of the experts enabled the commission to conclude that five shots may have been fired."}
+
+{
+    "event": "complete", 
+    "data": [
+        {
+            "path": "...",
+            "url": "...",
+            "size": null,
+            "orig_name": "audio.wav",
+            "mime_type": null,
+            "is_stream": false,
+            "meta": {"_type": "gradio.FileData"}
+        }, 
+        "..."
+    ]
+} 

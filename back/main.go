@@ -8,6 +8,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mattn/go-colorable"
 	api "github.com/mohammedaouamri5/Aurora/API"
+	"github.com/mohammedaouamri5/Aurora/initializers"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -43,6 +44,19 @@ func InitLog() {
 
 func main() {
 	InitLog()
+
+
+
+
+	cfg, err := initializers.LoadConfig(".")
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+	initializers.ConnectDB(&cfg)
+
+
+
 	r := gin.Default()
 
 	// Allow all origins, methods, and headers
