@@ -44,13 +44,13 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 	writer := multipart.NewWriter(body)
 	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
 	if err != nil {
-		log.Error("Failed to create form file:", err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create form data"})
 		return "", err
 	}
 
 	if _, err := io.Copy(part, openedFile); err != nil {
-		log.Error("Failed to copy file data:", err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to copy file data"})
 		return "", err
 	}
@@ -73,7 +73,7 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 	client := &http.Client{}
 	resp, err := client.Do(req)
 	if err != nil {
-		log.Error("Failed to send request:", err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to send request"})
 		return "", err
 	}
@@ -82,7 +82,7 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 	// Read response
 	respBody, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error("Failed to read response body:", err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to read response"})
 		return "", err
 	}

@@ -81,7 +81,7 @@ func main() {
 
 	// Start HTTPS server
 	log.Println("Server running on https://100.84.234.49:8443")
-	err := r.RunTLS(":8443", "cert.pem", "key.pem")
+	err = r.RunTLS(":8443", "cert.pem", "key.pem")
 	if err != nil {
 		log.Fatal("Failed to start HTTPS server: ", err)
 	}

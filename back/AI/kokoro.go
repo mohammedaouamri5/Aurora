@@ -3,6 +3,7 @@ package ai
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"regexp"
@@ -69,7 +70,6 @@ func get_event(__text string) (string, error) {
 }
 
 func parce(str string) string {
-
 	// Step 1: Convert "event: complete" to JSON format
 	str = strings.Replace(str, "event: ", "\"event\": \"", 1)
 	str = strings.Replace(str, "\ndata: ", "\", \"data\": ", 1)
@@ -85,7 +85,6 @@ func parce(str string) string {
 	str = re.ReplaceAllString(str, `"data": $1`)
 
 	return str
-
 }
 
 func get_voice(__event_id string) (map[string]interface{}, error) {
@@ -93,22 +92,52 @@ func get_voice(__event_id string) (map[string]interface{}, error) {
 
 	resp, err := http.Get("http://127.0.0.1:7860/gradio_api/call/create/" + __event_id)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return nil, err
 	}
 	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		log.Error(resp.Status)
+		return nil, errors.New("the kokono server returned: " + resp.Status)
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err)
 		return nil, err
 	}
-	log.Info("\n\n------------------------------------\n", string(body), "\n------------------------------------\n\n")
-	strBody := parce(string(body))
+	streamS := strings.Split(string(body), "\n\n")
+	__max := 0
+	for k, v := range streamS {
+		if len(v) > len(streamS[__max]) {
+			__max = k
+		}
+	}
+
+	strBody := parce(streamS[__max])
+
+	log.Info(
+		"\n-----------------------------------------------------\n",
+		string(body),
+		"\n-----------------------------------------------------\n",
+	)
+
+	log.Info(
+		"\n-----------------------------------------------------\n",
+		streamS[__max],
+		"\n-----------------------------------------------------\n",
+	)
+
+	log.Info(
+		"\n-----------------------------------------------------\n",
+		strBody,
+		"\n-----------------------------------------------------\n",
+	)
 	var response map[string]interface{}
 	err = json.Unmarshal([]byte(strBody), &response)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return nil, err
 	}
 	return response, nil
@@ -131,7 +160,7 @@ func Kokoro(ctx *gin.Context, __text string) (string, string, error) {
 
 	__source := result["data"].([]interface{})[0].(map[string]interface{})["path"].(string)
 	__sincke, err := utile.NowPath()
-	log.Info("\n__source : ", __source, "\n__sincke : " , __sincke)
+	log.Info("\n__source : ", __source, "\n__sincke : ", __sincke)
 	if err != nil {
 		log.Error(err.Error())
 		return "", "", err

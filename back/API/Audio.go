@@ -1,15 +1,15 @@
 package api
 
 import (
-	"mime/multipart"
-	"net/http"
-	"os"
-	"path/filepath"
 	"encoding/base64"
 	"github.com/gin-gonic/gin"
 	ai "github.com/mohammedaouamri5/Aurora/AI"
 	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
+	"mime/multipart"
+	"net/http"
+	"os"
+	"path/filepath"
 )
 
 func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
@@ -44,7 +44,6 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 	return file, filePath, nil
 }
 
-
 func Audio(ctx *gin.Context) {
 	_, AudioInput, err := reciveAudio(ctx)
 	if err != nil {
@@ -55,21 +54,24 @@ func Audio(ctx *gin.Context) {
 
 	TextInput, err := ai.Wisper(ctx, AudioInput)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+
+	log.Infof(" \n\n\n\n we've git the Inputtext :  %+v\n\n\n\n ", TextInput)
 
 	TextOutput, err := ai.Llm(ctx, TextInput)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	log.Infof(" \n\n\n\n we've git the TextOutput :  %+v\n\n\n\n ", TextOutput)
 
 	AudioOutput, PhoniticsOutput, err := ai.Kokoro(ctx, TextOutput)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -92,7 +94,7 @@ func Audio(ctx *gin.Context) {
 		TextOutput:      TextOutput,
 		PhoniticsOutput: PhoniticsOutput,
 	}
-
+	log.Infof(" \n\n\n\n%+v\n\n\n\n ", wave)
 	// Send JSON with Base64 audio
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":  wave,

@@ -4,7 +4,7 @@ services:
   postgres:
     image: postgres:latest
     container_name: postgres_container
-    environment:
+    env_file:
       - ./app.env
     ports:
       - "6500:5432"  # External port 6500, container port 5432
