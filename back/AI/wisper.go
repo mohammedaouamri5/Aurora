@@ -55,7 +55,7 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 		return "", err
 	}
 
-	// Add other fields
+	// Add    other fields
 	_ = writer.WriteField("model", "ggml-large-v3-turbo-q5_0") // Change model if needed
 	_ = writer.WriteField("language", "en")                    // Change model if needed
 	_ = writer.WriteField("response_format", "text")

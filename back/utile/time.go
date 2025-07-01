@@ -10,7 +10,7 @@ import (
 
 
 
-func NowPath() (string , error) {
+func NewPath() (string , error) {
 
 
 

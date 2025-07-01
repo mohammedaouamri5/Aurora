@@ -12,19 +12,16 @@ RUN_LOG="tmp/run.log"
 function build() {
     echo "----------------------------------"
     echo "Building the project..."
-    
 
-    # Run go build and redirect output to the build log
     if go build -o "$BINARY" . > "$BUILD_LOG" 2>&1; then
-        echo "Build succeeded."
+        echo "Build succeeded." | tee -a "$BUILD_LOG"
         echo "
-|----------------------------------------|
-|                                        |
-|        Cool evry thing is ok ✅        |
-|                                        |
-|----------------------------------------|
-
-        " > "$BUILD_LOG" 2>&1
+|------------------------------------------|
+|                                          |
+|         Cool everything is ok ✅         |
+|                                          |
+|------------------------------------------|
+        " | tee -a "$BUILD_LOG"
     else
         echo "Build failed. Check $BUILD_LOG for details."
     fi

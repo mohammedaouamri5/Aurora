@@ -28,7 +28,7 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 	}
 
 	// Generate a unique filename using timestamp
-	filePath, err := utile.NowPath()
+	filePath, err := utile.NewPath()
 	if err != nil {
 		log.Error(err)
 		return nil, "", err
@@ -45,21 +45,30 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 }
 
 func Audio(ctx *gin.Context) {
+
+	wave := utile.Wave{}
+
 	_, AudioInput, err := reciveAudio(ctx)
 	if err != nil {
 		log.Error(err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	wave.AudioInput = AudioInput
 
 	TextInput, err := ai.Wisper(ctx, AudioInput)
+
+	println(TextInput)
 	if err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	wave.TextInput = TextInput
 
-	log.Infof(" \n\n\n\n we've git the Inputtext :  %+v\n\n\n\n ", TextInput)
+	log.Info(" \n\n\n\n we've git the Inputtext :  \n\n\n\n ")
+	log.Info(wave)
+	utile.PrintUtile(wave)
 
 	TextOutput, err := ai.Llm(ctx, TextInput)
 	if err != nil {
@@ -67,14 +76,20 @@ func Audio(ctx *gin.Context) {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	log.Infof(" \n\n\n\n we've git the TextOutput :  %+v\n\n\n\n ", TextOutput)
 
-	AudioOutput, PhoniticsOutput, err := ai.Kokoro(ctx, TextOutput)
+	wave.TextOutput = TextOutput
+
+	log.Info(" \n\n\n\n we've git the TextOutput :  \n\n\n\n ")
+	utile.PrintUtile(wave)
+
+	AudioOutput, PhoniticsOutput, err := ai.KokoroAPI(ctx, TextOutput)
 	if err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	wave.AudioOutput = AudioOutput
+	wave.PhoniticsOutput = PhoniticsOutput
 
 	// Read the audio file
 	audioData, err := os.ReadFile(AudioOutput)
@@ -87,13 +102,6 @@ func Audio(ctx *gin.Context) {
 	// Encode audio file to Base64
 	audioBase64 := base64.StdEncoding.EncodeToString(audioData)
 
-	wave := ai.Wave{
-		AudioInput:      AudioInput,
-		TextInput:       TextInput,
-		AudioOutput:     AudioOutput,
-		TextOutput:      TextOutput,
-		PhoniticsOutput: PhoniticsOutput,
-	}
 	log.Infof(" \n\n\n\n%+v\n\n\n\n ", wave)
 	// Send JSON with Base64 audio
 	ctx.JSON(http.StatusOK, gin.H{

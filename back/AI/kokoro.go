@@ -143,7 +143,17 @@ func get_voice(__event_id string) (map[string]interface{}, error) {
 	return response, nil
 }
 
-func Kokoro(ctx *gin.Context, __text string) (string, string, error) {
+func KokoroCLI(ctx *gin.Context, __wave *utile.Wave) (string, string, error) {
+
+	Json := make(map[string]string)
+
+	Json["text"] = __wave.TextOutput
+	Json["dis"] = __wave.AudioInput + ".res.wav"
+
+	return "", "", nil
+}
+
+func KokoroAPI(ctx *gin.Context, __text string) (string, string, error) {
 	// var result  Wave
 	log.Info("llm")
 
@@ -159,7 +169,7 @@ func Kokoro(ctx *gin.Context, __text string) (string, string, error) {
 	}
 
 	__source := result["data"].([]interface{})[0].(map[string]interface{})["path"].(string)
-	__sincke, err := utile.NowPath()
+	__sincke, err := utile.NewPath()
 	log.Info("\n__source : ", __source, "\n__sincke : ", __sincke)
 	if err != nil {
 		log.Error(err.Error())
