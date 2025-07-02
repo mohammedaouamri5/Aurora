@@ -143,14 +143,34 @@ func get_voice(__event_id string) (map[string]interface{}, error) {
 	return response, nil
 }
 
-func KokoroCLI(ctx *gin.Context, __wave *utile.Wave) (string, string, error) {
+func KokoroCLI(ctx *gin.Context, __wave *utile.Wave) error {
+	__wave.AudioOutput = __wave.AudioInput + ".res.wav"
 
-	Json := make(map[string]string)
+	payload := map[string]interface{}{
+		"text": __wave.TextOutput,
+		"dst":  "/home/mohammedaouamri/DEV/Aurora/back/" + __wave.AudioOutput,
+	}
 
-	Json["text"] = __wave.TextOutput
-	Json["dis"] = __wave.AudioInput + ".res.wav"
+	jsonData, err := json.Marshal(payload)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
 
-	return "", "", nil
+	resp, err := http.Post("http://localhost:5000/tts", "application/json", bytes.NewBuffer(jsonData))
+
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		panic("kokoro didnt return 200")
+		return err
+	}
+
+	return nil
 }
 
 func KokoroAPI(ctx *gin.Context, __text string) (string, string, error) {
