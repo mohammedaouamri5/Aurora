@@ -1,142 +1,108 @@
 import { useState } from "react";
-
+import Conversation from "./Conversation";
+import UserCreation from "./User/Creation";
+/*
 const App = () => {
-  const [audioBlob, setAudioBlob] = useState(null);
-  const [receivedAudioURL, setReceivedAudioURL] = useState(null);
-  const [isRecording, setIsRecording] = useState(false);
-  const [mediaRecorder, setMediaRecorder] = useState(null);
-
-  const startRecording = async () => {
-    setReceivedAudioURL(null); // Clear previous processed audio
-
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-    const recorder = new MediaRecorder(stream);
-    setMediaRecorder(recorder);
-
-    let chunks = [];
-    let silenceTimer = null;
-    let audioContext = new AudioContext();
-    let analyser = audioContext.createAnalyser();
-    let source = audioContext.createMediaStreamSource(stream);
-    source.connect(analyser);
-    analyser.fftSize = 512;
-    let bufferLength = analyser.frequencyBinCount;
-    let dataArray = new Uint8Array(bufferLength);
-
-    recorder.ondataavailable = (event) => {
-      chunks.push(event.data);
-    };
-
-    const checkSilence = () => {
-      analyser.getByteFrequencyData(dataArray);
-      let averageVolume = dataArray.reduce((a, b) => a + b) / bufferLength;
-
-      if (averageVolume < 10) {
-        if (!silenceTimer) {
-          silenceTimer = setTimeout(() => {
-            console.log("Silence detected, stopping recording...");
-            stopRecording();
-          }, 5500); // Stop after 5.5 sec of silence
-        }
-      } else {
-        if (silenceTimer) {
-          clearTimeout(silenceTimer);
-          silenceTimer = null;
-        }
-      }
-
-      if (isRecording) {
-        requestAnimationFrame(checkSilence);
-      }
-    };
-
-    recorder.onstop = () => {
-      setIsRecording(false);
-      stream.getTracks().forEach((track) => track.stop());
-      audioContext.close();
-
-      const recordedBlob = new Blob(chunks, { type: "audio/wav" });
-      setAudioBlob(recordedBlob);
-
-      sendAudio(recordedBlob);
-    };
-
-    setIsRecording(true);
-    recorder.start();
-    checkSilence();
-  };
-
-  const stopRecording = () => {
-    if (mediaRecorder && isRecording) {
-      mediaRecorder.stop();
-      setIsRecording(false);
-      receivedAudioURL(null )
-    }
-  };
-
-  const handleButtonClick = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
-    }
-  };
-
-  const sendAudio = async (blob) => {
-    const formData = new FormData();
-    formData.append("file", blob, "recording.wav");
-
-    try {
-      const response = await fetch("https://100.84.234.49:8443/audio", {
-        method: "POST",
-        body: formData,
-      });
-
-      const data = await response.json();
-      console.log("Upload response:", data);
-
-      if (data.audio) {
-        // Convert Base64 response to Blob
-        const byteCharacters = atob(data.audio);
-        const byteArrays = [];
-        for (let i = 0; i < byteCharacters.length; i++) {
-          byteArrays.push(byteCharacters.charCodeAt(i));
-        }
-        const processedAudioBlob = new Blob([new Uint8Array(byteArrays)], { type: "audio/wav" });
-
-        // Create URL for playback
-        const processedAudioURL = URL.createObjectURL(processedAudioBlob);
-        setReceivedAudioURL(processedAudioURL);
-
-        // Play the processed audio automatically
-        const audio = new Audio(processedAudioURL);
-        audio.play();
-      }
-    } catch (error) {
-      console.error("Error uploading file:", error);
-    }
-  };
-
   return (
     <div>
-      <h1>Voice Recorder</h1>
-      <button onClick={handleButtonClick}>
-        {isRecording ? "Stop Recording" : "Start Recording"}
-      </button>
-
-      {receivedAudioURL ? (
-        <div>
-          <h3>Processed Audio:</h3>
-          <audio controls src={receivedAudioURL} />
-        </div>
-      ) : audioBlob ? (
-        <div>
-          <h3>Recorded Audio:</h3>
-          <audio controls src={URL.createObjectURL(audioBlob)} />
-        </div>
-      ) : null}
+      <UserCreation />
+      <Conversation />
     </div>
   );
 };
+
+export default App;
+
+
+*/
+
+
+
+
+import { useEffect } from "react";
+import { Routes, Route, useLocation, Outlet } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { createTheme, ThemeProvider } from "@mui/material";
+import { autoLogout, isTokenExpired } from "./redux/authSlice";
+import PortectedRoutes from "./utils/PortectedRoutes";
+import Login from "./components/auth/Login";
+import Signup from "./components/auth/Signup";
+import "./App.css";
+import { fetchVitals } from "./redux/signsSlice";
+// import Navbar from "./components/layout/Navbar";
+// import Sidebar from "./components/layout/Sidebar";
+import Unauthorized from "./components/layout/Unauthorized";
+
+const DashboardLayout = () => {
+  const location = useLocation();
+
+  return (
+    <div className="flex flex-col h-screen w-full">
+      <div className="w-full">
+        <Navbar />
+      </div>
+      <div className="w-full h-full flex">
+        <div className="flex-grow overflow-hidden">
+          <Sidebar />
+        </div>
+        <main
+          className={`flex-grow w-full h-[90vh] bg-lightBg ${isCalendarPage || isSessionsPage ? "p-0" : "p-8"
+            } overflow-scroll custom-scrollbar`}
+        >
+          <Outlet />
+        </main>
+      </div>
+    </div>
+  );
+};
+
+function App() {
+  const dispatch = useDispatch();
+  const { accessToken } = useSelector((state) => state.auth);
+
+  const customTheme = createTheme({
+    palette: {
+      primary: {
+        main: "#0D3B66",
+        contrastText: "#FFFFFF",
+      },
+    },
+  });
+
+  useEffect(() => {
+    if (accessToken) {
+      const isExpired = isTokenExpired(accessToken);
+      if (isExpired) {
+        dispatch(autoLogout());
+      }
+    } else {
+      dispatch(autoLogout());
+    }
+  }, [dispatch, accessToken]);
+
+  useEffect(() => {
+    dispatch(fetchVitals());
+  }, [dispatch]);
+
+  return (
+    <div>
+      <ThemeProvider theme={customTheme}>
+        <Routes>
+
+          {/* Public routes */}
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
+          <Route path="unauthorized" element={<Unauthorized />} />
+
+          {/* Protected routes with shared layout */}
+          <Route element={<PortectedRoutes />}>
+            <Route element={<DashboardLayout />} />
+          </Route>
+
+        </Routes>
+      </ThemeProvider>
+    </div>
+  );
+}
 
 export default App;
