@@ -2,20 +2,16 @@ import React, { useEffect, useState } from "react";
 import {
   Alert,
   Button,
-  FormControl,
-  FormHelperText,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
+  Divider,
+  Box,
 } from "@mui/material";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
-import LoginBg from "../../assets/login.jpg";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -24,9 +20,6 @@ const Signup = () => {
     (state) => state.auth
   );
 
-
-
-
   const [formData, setFormData] = useState({
     userName: "",
     email: "",
@@ -34,56 +27,28 @@ const Signup = () => {
     confirmPassword: "",
   });
 
-  const [userNameError, setUserNameError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [roleError, setRoleError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
+  const [errors, setErrors] = useState({});
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    const newErrors = {};
 
-    let isValid = true;
-    console.log(formData)
-    if (!formData.userName) {
-      setUserNameError("User name is required");
-      isValid = false;
-    } else {
-      setUserNameError("");
-    }
+    if (!formData.userName) newErrors.userName = "User name is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    if (!formData.confirmPassword)
+      newErrors.confirmPassword = "Confirm password is required";
+    else if (formData.password !== formData.confirmPassword)
+      newErrors.confirmPassword = "Passwords do not match";
 
-    if (!formData.email) {
-      setEmailError("Email is required");
-      isValid = false;
-    } else {
-      setEmailError("");
-    }
-    if (!formData.password) {
-      setPasswordError("Password is required");
-      isValid = false;
-    } else {
-      setPasswordError("");
-    }
+    setErrors(newErrors);
 
-    if (!formData.confirmPassword) {
-      setConfirmPasswordError("Confirm password is required");
-      isValid = false;
-    } else if (formData.password !== formData.confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
-      isValid = false;
-    } else {
-      setConfirmPasswordError("");
-    }
-
-    if (isValid) {
+    if (Object.keys(newErrors).length === 0) {
       dispatch(
         signup({
           Email: formData.email,
@@ -91,156 +56,140 @@ const Signup = () => {
           Name: formData.userName,
         })
       );
-    } else {
-      console.log(formData)
     }
   };
 
   useEffect(() => {
     if (authStatus === "success" && isAuthenticated) {
-      navigate("/");
+      navigate("/conversation");
     }
   }, [authStatus, isAuthenticated]);
 
-  console.log("rendered")
+  const socialProviders = [
+    { icon: <FcGoogle />, label: "Sign up with Google" },
+    { icon: <FaFacebook className="text-blue-800" />, label: "Sign up with Facebook" },
+    { icon: <FaApple />, label: "Sign up with Apple" },
+  ];
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-between">
-      <div className="flex w-[45%] justify-center items-center flex-col">
-        <form
-          className="w-[460px] p-6 rounded-3xl"
-          onSubmit={handleSubmit}
+    <Box
+      sx={{
+        width: "100%",
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        background: "#f9f9f9",
+      }}
+    >
+      <Box
+        component="form"
+        onSubmit={handleSubmit}
+        sx={{
+          width: 460,
+          p: 4,
+          borderRadius: 4,
+          backgroundColor: "#fff",
+          boxShadow: 3,
+        }}
+      >
+        <Box mb={4}>
+          <Typography variant="overline">LET'S GET YOU STARTED</Typography>
+          <Typography variant="h5">Create an account</Typography>
+        </Box>
+
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Username"
+          name="userName"
+          value={formData.userName}
+          onChange={handleChange}
+          error={!!errors.userName}
+          helperText={errors.userName}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Email"
+          name="email"
+          value={formData.email}
+          onChange={handleChange}
+          error={!!errors.email}
+          helperText={errors.email}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          type="password"
+          label="Password"
+          name="password"
+          value={formData.password}
+          onChange={handleChange}
+          error={!!errors.password}
+          helperText={errors.password}
+        />
+        <TextField
+          fullWidth
+          margin="normal"
+          type="password"
+          label="Confirm Password"
+          name="confirmPassword"
+          value={formData.confirmPassword}
+          onChange={handleChange}
+          error={!!errors.confirmPassword}
+          helperText={errors.confirmPassword}
+        />
+
+        {error && (
+          <Alert severity="error" sx={{ mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+
+        <Button
+          type="submit"
+          variant="contained"
+          fullWidth
+          sx={{ mt: 3, py: 1.5, borderRadius: 2 }}
         >
-          <div className="mb-8">
-            <Typography variant="overline" display="block" gutterBottom>
-              LET'S GET YOU STARTED
-            </Typography>
-            <Typography variant="h5" gutterBottom>
-              Create an account
-            </Typography>
-          </div>
-          <div className="w-full mb-4">
-            <TextField
-              error={Boolean(userNameError)}
-              helperText={userNameError}
-              className="w-full"
-              id="outlined-basic"
-              label="Username"
-              variant="outlined"
-              name="userName"
-              value={formData.userName}
-              onChange={handleChange}
-              sx={{ height: "45px" }}
-            />
-          </div>
-          <div className="w-full mb-4">
-            <TextField
-              error={Boolean(emailError)}
-              helperText={emailError}
-              className="w-full"
-              id="outlined-basic"
-              label="Email"
-              variant="outlined"
-              name="email"
-              value={formData.email}
-              onChange={handleChange}
-              sx={{ height: "45px" }}
-            />
-          </div>
-          <div className="w-full mb-4">
-            <TextField
-              error={Boolean(passwordError)}
-              helperText={passwordError}
-              className="w-full"
-              id="outlined-basic"
-              label="Password"
-              sx={{ height: "45px" }}
-              type="password"
-              variant="outlined"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-            />
-          </div>
-          <div className="w-full mb-4">
-            <TextField
-              error={Boolean(confirmPasswordError)}
-              helperText={confirmPasswordError}
-              className="w-full"
-              id="outlined-basic"
-              label="Confirm Password"
-              sx={{ height: "45px" }}
-              type="password"
-              variant="outlined"
-              name="confirmPassword"
-              value={formData.confirmPassword}
-              onChange={handleChange}
-            />
-          </div>
-          {error && error.length ? (
-            <Alert variant="outlined" severity="error" className="!mb-4">
-              {error}
-            </Alert>
-          ) : (
-            ""
-          )}
+          GET STARTED
+        </Button>
+
+        <Divider sx={{ my: 3 }}>Or</Divider>
+
+        {socialProviders.map(({ icon, label }, idx) => (
           <Button
-            type="submit"
-            variant="contained"
-            className="!bg-primary !rounded-lg !p-4 w-full !normal-case"
-            sx={{ height: "45px" }}
+            key={idx}
+            fullWidth
+            variant="outlined"
+            sx={{
+              py: 1.5,
+              borderRadius: 2,
+              mb: 2,
+              textTransform: "none",
+              justifyContent: "flex-start",
+              pl: 6,
+              position: "relative",
+            }}
           >
-            GET STARTED
+            <Box sx={{ position: "absolute", left: 16, fontSize: 20 }}>
+              {icon}
+            </Box>
+            {label}
           </Button>
+        ))}
 
-          <div className="flex w-full justify-between items-center my-4">
-            <div className="w-[40%] h-[1px] bg-secondary"></div>
-            Or
-            <div className="w-[40%] h-[1px] bg-secondary"></div>
-          </div>
-
-          <div className="w-full">
-            <Button
-              type="button"
-              variant="contained"
-              sx={{ height: "45px" }}
-              className="!bg-white !text-darkText !rounded-lg !p-3 !mb-4 w-full !normal-case"
-            >
-              <FcGoogle className="absolute left-5 text-xl" /> Sign up with
-              Google
-            </Button>
-            <Button
-              type="button"
-              variant="contained"
-              sx={{ height: "45px" }}
-              className="!bg-white !text-darkText !rounded-lg !p-3 !mb-4 w-full !normal-case"
-            >
-              <FaFacebook className="text-blue-800 absolute left-5 text-xl" />
-              Sign up with Facebook
-            </Button>
-            <Button
-              type="button"
-              variant="contained"
-              sx={{ height: "45px" }}
-              className="!bg-white !text-darkText !rounded-lg !p-3 !mb-4 w-full !normal-case"
-            >
-              <FaApple className="absolute left-5 text-xl" />
-              Sign up with Apple
-            </Button>
-          </div>
-          <div className="flex items-center justify-center w-full">
-            <Typography variant="subtitle2" display="block" gutterBottom>
-              Already have an account?{" "}
-              <Link className="font-bold" to={"/login"}>
-                Login
-              </Link>
-            </Typography>
-          </div>
-        </form>
-      </div>
-
-    </div>
+        <Typography variant="body2" align="center" mt={2}>
+          Already have an account?{" "}
+          <Link to="/login" style={{ fontWeight: "bold" }}>
+            Login
+          </Link>
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
 export default Signup;
+

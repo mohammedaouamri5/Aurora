@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Conversation from "./Conversation";
+import Conversation from "./pages/conversation";
 import UserCreation from "./User/Creation";
 /*
 const App = () => {
@@ -20,7 +20,7 @@ export default App;
 
 
 import { useEffect } from "react";
-import { Routes, Route, useLocation, Outlet } from "react-router-dom";
+import { Routes, Route, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { createTheme, ThemeProvider } from "@mui/material";
 import { autoLogout, isTokenExpired } from "./redux/authSlice";
@@ -58,6 +58,15 @@ const DashboardLayout = () => {
 
 function App() {
   const dispatch = useDispatch();
+  const navigate = useNavigate()
+
+  const { isAuthenticated, user } = useSelector((state) => state.auth);
+  useEffect(() => {
+    if ( isAuthenticated) {
+      navigate("/conversation");
+    }
+  }, [user, isAuthenticated]);
+
   const { accessToken } = useSelector((state) => state.auth);
 
   const customTheme = createTheme({
@@ -97,6 +106,7 @@ function App() {
           {/* Protected routes with shared layout */}
           <Route element={<PortectedRoutes />}>
             <Route element={<DashboardLayout />} />
+            <Route path="/conversation" element={<Conversation />} />
           </Route>
 
         </Routes>

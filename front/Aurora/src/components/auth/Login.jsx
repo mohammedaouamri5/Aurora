@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Alert, Button, TextField, Typography } from "@mui/material";
 import { FcGoogle } from "react-icons/fc";
 import { FaApple, FaFacebook } from "react-icons/fa";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { login } from "../../redux/authSlice";
 import { MoonLoader } from "react-spinners";
