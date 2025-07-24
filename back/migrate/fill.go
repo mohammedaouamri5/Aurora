@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/mohammedaouamri5/CuraHealth-back/initializers"
+	"github.com/mohammedaouamri5/Aurora/initializers"
 )
 
 func init() {

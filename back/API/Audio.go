@@ -50,7 +50,7 @@ func Audio(ctx *gin.Context) {
 
 	_, AudioInput, err := reciveAudio(ctx)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
@@ -82,8 +82,7 @@ func Audio(ctx *gin.Context) {
 	log.Info(" \n\n\n\n we've git the TextOutput :  \n\n\n\n ")
 	utile.PrintUtile(wave)
 
-
-	ai.KokoroCLI(ctx , &wave)
+	ai.KokoroCLI(ctx, &wave)
 
 	// Read the audio file
 	audioData, err := os.ReadFile(wave.AudioOutput)

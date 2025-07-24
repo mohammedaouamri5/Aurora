@@ -90,7 +90,7 @@ func Llm(ctx *gin.Context, __text string) (string, error) {
 				whisper model for STT 
 				then mistral as an LLM 
 				then kokoro for TTS
-				that gives direct , unfiltered, and brutally honest responses. Avoid unnecessary politeness and sugarcoating. Be specific and straight to the point.`,
+				that gives direct , unfiltered, and brutally honest responses. Avoid unnecessary politeness and sugarcoating. Be specific and straight to the point and dont yap try to use the minimome word posibal.`,
 			},
 			{"role": "user", "content": __text},
 		},

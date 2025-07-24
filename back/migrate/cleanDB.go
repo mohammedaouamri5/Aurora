@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/mohammedaouamri5/CuraHealth-back/initializers"
+	"github.com/mohammedaouamri5/Aurora/initializers"
 	"log"
 )
 
@@ -17,8 +17,8 @@ func init() {
 func main() {
 	// Loop to continuously drop tables until none are left
 	for {
-		// Get the list of tables
-		tables, err := initializers.DB.Migrator().GetTables()
+		// Get the list of tables)
+		tables, err := initializers.DB.Orm.Migrator().GetTables()
 		if err != nil {
 			log.Fatal("failed to get tables:", err)
 		}
@@ -31,7 +31,7 @@ func main() {
 		// Drop each table
 		for _, table := range tables {
 			log.Printf("Dropping table: %s\n", table)
-			if err := initializers.DB.Migrator().DropTable(table); err != nil {
+			if err := initializers.DB.Orm.Migrator().DropTable(table); err != nil {
 				log.Printf("Failed to drop table %s: %v\n", table, err)
 			}
 		}

@@ -40,6 +40,25 @@ lint:
 
 
 
+CleanDB:
+	@echo "Cleaning up the database... 🔥"
+	go run ./migrate/cleanDB.go
+	@echo "Database wiped! 👌"
+
+MigrateDB:
+	@echo "Migrating the database... 🔥"
+	go run ./migrate/migrate.go
+	@echo "Database migrated! 👌"
+
+Fill: 
+	@echo "Filling the database... 🔥"
+
+	go run ./migrate/fill.go
+	@echo "Database full! 👌"
+
+
+
+
 
 
 
