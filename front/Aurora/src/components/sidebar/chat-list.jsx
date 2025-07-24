@@ -52,15 +52,15 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
           <List dense sx={{ py: 0 }}>
             {chats.map((chat) => (
               <ListItem
-                key={chat.id}
+                key={chat.ConversationID}
                 disablePadding
-                onMouseEnter={() => setHoveredChat(chat.id)}
+                onMouseEnter={() => setHoveredChat(chat.ConversationID)}
                 onMouseLeave={() => setHoveredChat(null)}
                 sx={{ px: 2 }}
               >
                 <ListItemButton
-                  selected={selectedChat === chat.id}
-                  onClick={() => onChatSelect(chat.id)}
+                  selected={selectedChat === chat.ConversationID}
+                  onClick={() => onChatSelect(chat.ConversationID)}
                   sx={{
                     borderRadius: 1,
                     color: "white",
@@ -77,7 +77,7 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
                   }}
                 >
                   <ListItemText
-                    primary={chat.title}
+                    primary={chat.Titel}
                     sx={{
                       "& .MuiListItemText-primary": {
                         overflow: "hidden",
@@ -86,10 +86,10 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
                       },
                     }}
                   />
-                  {hoveredChat === chat.id && (
+                  {hoveredChat === chat.ConversationID && (
                     <IconButton
                       size="small"
-                      onClick={(e) => handleMenuClick(e, chat.id)}
+                      onClick={(e) => handleMenuClick(e, chat.ConversationID)}
                       sx={{
                         color: COLORS.TEXT_SECONDARY,
                         "&:hover": {

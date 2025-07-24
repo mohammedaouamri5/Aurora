@@ -18,16 +18,24 @@ export function useChat() {
   const groupedChats = useMemo(() => {
     const chats = data || [];
 
-    const filtered = chats.filter((chat) =>
-      chat.title.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    console.log("NIGGGA", chats.length)
+    console.log("NIGGGA", chats)
+    if (
+      !Array.isArray(chats)
+    ) { return {} }
+
+
+
+    
+    const filtered = chats.filter((chat) => chat.Titel.toLowerCase().includes(searchQuery.toLowerCase()));
+    filtered.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
 
     const groups = {};
     filtered.forEach((chat) => {
-      if (!groups[chat.category]) {
-        groups[chat.category] = [];
+      if (!groups[chat.CreatedAt]) {
+        groups[chat.CreatedAt] = [];
       }
-      groups[chat.category].push(chat);
+      groups[chat.CreatedAt].push(chat);
     });
 
     return groups;
