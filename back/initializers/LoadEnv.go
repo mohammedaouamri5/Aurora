@@ -19,6 +19,10 @@ type Config struct {
 	NULL_UUID      string `mapstructure:"NULL_UUID"`
 	ALL_UUID       string `mapstructure:"ALL_UUID"`
 	ACCESS_TOKEN   string `mapstructure:"ACCESS_TOKEN"`
+	MONGO_URI      string `mapstructure:"MONGO_URI"`
+	REDIS_HOST      string `mapstructure:"REDIS_HOST"`
+	REDIS_PORT      string `mapstructure:"REDIS_PORT"`
+
 }
 
 var Cfg *Config

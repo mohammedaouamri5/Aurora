@@ -1,6 +1,7 @@
 package api
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"net/http"
@@ -84,6 +85,27 @@ func NewChat(ctx *gin.Context) {
 		return
 	}
 
+	SaveToMongoDB := func(newConversation models.Conversation, err error) bool {
+		conversation := models.Chat{
+			ConversationID: newConversation.ConversationID.String(),
+			Messages:       make([]models.Message, 0),
+		}
+		__ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+		defer cancel()
+
+		collection := initializers.DB.Mongo.Collection("conversations")
+		_, err = collection.InsertOne(__ctx, conversation)
+		if err != nil {
+			log.Error(err.Error())
+			return true
+		}
+		__ctx.Done()
+
+		log.Info(conversation)
+		return false
+	}
+
+	go SaveToMongoDB(newConversation, err)
 	log.Info(newConversation)
 	ctx.JSON(http.StatusOK, newConversation)
 

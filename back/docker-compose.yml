@@ -7,16 +7,61 @@ services:
     env_file:
       - ./app.env
     ports:
-      - "6500:5432"  # External port 6500, container port 5432
+      - "6500:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     networks:
       - app_network
 
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./mongodb:/data/db
+    networks:
+      - app_network
+
+  redis:
+    image: redis:latest
+    container_name: redis_container
+    ports:
+      - "6370:6379"
+    networks:
+      - app_network
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    ports:
+      - "8081:8081"
+    environment:
+      - ME_CONFIG_MONGODB_SERVER=mongodb
+    networks:
+      - app_network
+
+  whisper-server:
+    image: ghcr.io/mutablelogic/go-whisper:latest
+    container_name: whisper-server
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    volumes:
+      - whisper:/data
+    ports:
+      - "8888:80"
+    networks:
+      - app_network
 
 volumes:
   postgres_data:
+  whisper:
 
 networks:
   app_network:
     driver: bridge
+

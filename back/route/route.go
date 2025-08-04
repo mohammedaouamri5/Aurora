@@ -14,12 +14,15 @@ func Routers(router *gin.Engine) {
 		c.Status(204)
 	})
 
+	{
+		router.GET("/conversations", api.JWTauth, api.SELECTALLConversation)
+		router.POST("/create-conversation", api.JWTauth, api.NewChat)
+	}
 
-
-	router.GET("/conversations", api.JWTauth, api.SELECTALLConversation)
-
-	router.POST("/create-conversation", api.JWTauth, api.NewChat)
-
+	{
+		router.GET("/Messages", api.JWTauth, api.GetMessage)
+		router.POST("/Messages", api.JWTauth, api.SendTextMessage)
+	}
 	// PING
 	{
 		router.GET("/ping", func(ctx *gin.Context) { ctx.String(http.StatusOK, "https://100.84.234.49:1420/") })

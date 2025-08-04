@@ -27,3 +27,15 @@ type Conversation struct {
 	User           User
 	Assistant      Assistant
 }
+
+type Message struct {
+	CreatedAt *time.Time `bson:"createdAt" json:"createdAt"`
+	Role      string     `bson:"role" json:"role"` // e.g. "User" or "Assistant"
+	Content   string     `bson:"content" json:"content"`
+	AudioPath string     `bson:"audioPath" json:"audioPath"`
+}
+
+type Chat struct {
+	ConversationID       string    `bson:"conversationID" json:"conversationID"`
+	Messages []Message `bson:"messages" json:"messages"`
+}

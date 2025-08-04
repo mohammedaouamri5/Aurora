@@ -37,7 +37,6 @@ func uUIDExist(__id string, __table string) (bool, error) {
 	Query := func(__id string) string {
 		return fmt.Sprintf("SELECT COUNT(*)  as count  FROM %s WHERE %s = '%s';", __table, __colomn, __id)
 	}
-	log.Error(Query(__id))
 
 	result, err := initializers.DB.Raw.Query(Query(__id))
 
@@ -94,7 +93,7 @@ func UUIDIsExist(p_uuid string, p_table string, err error) (int, error) {
 		log.Error(__err.Error())
 		return http.StatusInternalServerError, __err
 	} else if !IsExist {
-		__err = errors.New(fmt.Sprintf("'%s' dose not exist in '%s'", p_uuid, p_uuid))
+		__err = errors.New(fmt.Sprintf("'%s' dose not exist in '%s'", p_uuid, p_table))
 		log.Error(__err.Error())
 		err = errors.Join(err, __err)
 		status = http.StatusBadRequest

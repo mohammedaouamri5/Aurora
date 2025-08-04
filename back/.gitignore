@@ -23,3 +23,7 @@ LOG/*.LOG
 # Go workspace file
 go.work
 go.work.sum
+
+
+
+mongodb
