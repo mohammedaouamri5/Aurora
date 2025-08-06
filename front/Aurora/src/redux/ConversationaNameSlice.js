@@ -17,9 +17,7 @@ export const GetConversations = createAsyncThunk(
         },
       });
 
-      console.log("res.data : " , res.data)
       var  result  = res.data.conversations
-      console.log("result : " , result)
       return result;
     } catch (err) {
       console.log(err);
@@ -40,7 +38,6 @@ export const AddConversation = createAsyncThunk(
       });
 
       if (res.status === 200 || res.status === 201) {
-        console.log(res.data)
         return res.data;
       }
       return rejectWithValue("Unexpected response status");

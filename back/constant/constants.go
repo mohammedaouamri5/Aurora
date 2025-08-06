@@ -12,3 +12,6 @@ var DefaultAssistant = models.Assistant{
 	AssistantID:   uuid.MustParse(DefaultAssistantID),
 	AssistantName: "Default",
 }
+
+var TheChatChanel chan models.Chat
+

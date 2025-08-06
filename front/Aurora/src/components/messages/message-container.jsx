@@ -1,4 +1,3 @@
-"use client"
 
 import { Box, Typography, Avatar, IconButton, Tooltip } from "@mui/material"
 import { Person as PersonIcon, SmartToy as BotIcon, VolumeUp as VolumeUpIcon } from "@mui/icons-material"
@@ -8,6 +7,7 @@ import { useTheme } from "../../hooks/use-theme"
 
 export function MessageContainer({ messages, onAddMessage }) {
   const { theme } = useTheme()
+
 
   return (
     <Box
@@ -34,7 +34,8 @@ export function MessageContainer({ messages, onAddMessage }) {
       {messages && messages.length > 0 ? (
         <Box sx={{ p: 4, maxWidth: "800px", mx: "auto", width: "100%" }}>
           {messages.map((message, index) => (
-            <MessageBubble key={message.id || index} message={message} />
+
+            <MessageBubble key={message.createdAt || index} message={message} />
           ))}
         </Box>
       ) : (
@@ -46,7 +47,7 @@ export function MessageContainer({ messages, onAddMessage }) {
 
 function MessageBubble({ message }) {
   const { theme } = useTheme()
-  const isUser = message.type === "user"
+  const isUser = message.role === "user"
 
   const handleReadMessage = () => {
     if ("speechSynthesis" in window) {
@@ -186,6 +187,7 @@ function MessageBubble({ message }) {
       </Box>
     </Box>
   )
+
 }
 
 function EmptyState() {

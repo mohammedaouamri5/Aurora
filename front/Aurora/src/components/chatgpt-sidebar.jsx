@@ -12,10 +12,13 @@ import { useChat } from "../hooks/use-chat.js"
 import { useRecording } from "../hooks/use-recording.js"
 import { useMessages } from "../hooks/use-messages.js"
 import { DRAWER_WIDTH } from "../constants/sidebar.js"
+import { useDispatch } from "react-redux"
+import { SendTextMessage } from "../redux/MessegesSlice.js"
 
 function ChatGPTSidebarContent() {
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [message, setMessage] = useState("")
+  const dispatch = useDispatch();
 
   const {
     selectedChat,
@@ -27,6 +30,7 @@ function ChatGPTSidebarContent() {
     currentChatTitle,
   } = useChat()
 
+
   const { isRecording, startRecording, stopRecording } = useRecording()
   const { addUserMessage, addAssistantMessage } = useMessages()
 
@@ -37,13 +41,13 @@ function ChatGPTSidebarContent() {
   const handleSendMessage = () => {
     if (message.trim()) {
       addUserMessage(message)
-
-
-
-
-
-
-
+      console.log(message)
+      dispatch(SendTextMessage(
+        {
+          ConversationID: selectedChat,
+          Textmessage: message
+        }
+      ))
       setMessage("")
     }
   }

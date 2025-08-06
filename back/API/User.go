@@ -11,7 +11,7 @@ import (
 
 func CreateUser(ctx *gin.Context) {
 	type Request struct {
-		Name string
+		 Name string
 	}
 	type Response struct {
 	}
@@ -39,6 +39,7 @@ func CreateUser(ctx *gin.Context) {
 		return
 	}
 	ctx.Status(http.StatusCreated)
+
 
 }
 

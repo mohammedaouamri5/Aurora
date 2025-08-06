@@ -1,32 +1,46 @@
 import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GetConversations } from "../redux/ConversationaNameSlice";
+import { GetMessages } from "../redux/MessegesSlice";
 import { sampleMessages } from "./../data/sample-messages"
 import { sampleChats } from "./../data/sample-chats"
 
 export function useChat() {
-  const [selectedChat, setSelectedChat] = useState("1");
+  const [selectedChat, setSelectedChat] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const dispatch = useDispatch();
-  const { data, status, error } = useSelector((state) => state.ConversationsName);
+  const dispatchConversationsName = useDispatch();
+  const dispatchMessages = useDispatch();
+  const {
+    data: Conversations,
+    status: conversationsStatus,
+    error: conversationsError
+  } = useSelector((state) => state.ConversationsName);
+
+  const { data: Messages,
+    status: messagesStatus,
+    error: messagesError
+  } = useSelector((state) => state.Messages);
+
+  const fullState = useSelector((state) => state);
+
+
 
   useEffect(() => {
-    dispatch(GetConversations());
-  }, [dispatch]);
+    dispatchConversationsName(GetConversations());
+  }, []);
+
 
   const groupedChats = useMemo(() => {
-    const chats = data || [];
+    const chats = Conversations || [];
 
-    console.log("NIGGGA", chats.length)
-    console.log("NIGGGA", chats)
     if (
       !Array.isArray(chats)
     ) { return {} }
 
 
 
-    
+
     const filtered = chats.filter((chat) => chat.Titel.toLowerCase().includes(searchQuery.toLowerCase()));
     filtered.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
 
@@ -39,16 +53,26 @@ export function useChat() {
     });
 
     return groups;
-  }, [data, searchQuery]);
+  }, [Conversations, searchQuery]);
 
   const currentMessages = useMemo(() => {
-    return selectedChat ? sampleMessages[selectedChat] || [] : []
-  }, [selectedChat])
+    // console.log("Messages", Messages)
+    // console.log("Conversations", Conversations)
+    return selectedChat ? Messages[selectedChat] || [] : [];
+  }, [selectedChat, Messages]);
+
+
 
   const currentChatTitle = useMemo(() => {
     const chat = sampleChats.find((c) => c.id === selectedChat)
     return chat ? chat.title : null
   }, [selectedChat])
+
+
+  useEffect(() => {
+    dispatchMessages(GetMessages(
+      { ConversationID: selectedChat }));
+  }, [dispatchMessages, selectedChat]);
 
   return {
     selectedChat,
@@ -60,4 +84,5 @@ export function useChat() {
     currentChatTitle,
   }
 }
+
 

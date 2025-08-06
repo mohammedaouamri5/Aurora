@@ -7,6 +7,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	// "github.com/mohammedaouamri5/Aurora/constant"
+	ai "github.com/mohammedaouamri5/Aurora/AI"
+	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/utile"
@@ -68,7 +71,6 @@ func GetMessage(ctx *gin.Context) {
 		return
 	}
 
-	log.Infof("==> %+v ", result)
 	ctx.JSON(http.StatusOK, gin.H{
 		*request.ConversationID: result.Messages,
 	})
@@ -143,6 +145,16 @@ func SendTextMessage(ctx *gin.Context) {
 
 	}
 
-	ctx.JSON(http.StatusOK, message)
+	go TextResponce(*request.TextMessage)
 
+	ctx.JSON(http.StatusOK, message)
+}
+
+func TextResponce(__text string) {
+	text_responce, _ := ai.LLM(__text)
+
+	constant.TheChatChanel <- models.Chat{
+		ConversationID: text_responce,
+		Messages:       nil,
+	}
 }

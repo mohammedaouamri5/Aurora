@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { use, useState } from "react";
 import Conversation from "./pages/conversation";
+import { connectToSocket } from "./redux/wsActions"
 import UserCreation from "./User/Creation";
 /*
 const App = () => {
@@ -15,7 +16,6 @@ export default App;
 
 
 */
-
 
 
 
@@ -59,10 +59,18 @@ const DashboardLayout = () => {
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate()
+  const connected = useSelector(state => state.websocket.connected);
+
+
+
+  useEffect(() => {
+    if (!connected) { dispatch(connectToSocket()); }
+  }, [dispatch]);
+
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   useEffect(() => {
-    if ( isAuthenticated) {
+    if (isAuthenticated) {
       navigate("/conversation");
     }
   }, [user, isAuthenticated]);
