@@ -15,7 +15,8 @@ type User struct {
 
 type Assistant struct {
 	AssistantID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primary_key"`
-	AssistantName string    `gorm:"type:varchar(255);not null"`
+	AssistantName string    `gorm:"type:varchar(20);not null"`
+	SystemPrompt  string    `gorm:"type:text;not null"`
 }
 
 type Conversation struct {
@@ -36,6 +37,6 @@ type Message struct {
 }
 
 type Chat struct {
-	ConversationID       string    `bson:"conversationID" json:"conversationID"`
-	Messages []Message `bson:"messages" json:"messages"`
+	ConversationID string    `bson:"conversationID" json:"conversationID"`
+	Messages       []Message `bson:"messages" json:"messages"`
 }

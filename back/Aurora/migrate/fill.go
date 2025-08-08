@@ -36,7 +36,7 @@ func main() {
 		}
 
 		// Execute SQL command
-		if err := initializers.DB.Exec(stmt).Error; err != nil {
+		if err := initializers.DB.Orm.Exec(stmt).Error; err != nil {
 			log.Fatalf("Error executing statement: %s\n%v", stmt, err)
 		}
 		fmt.Println("Executed:", stmt)

@@ -1,4 +1,0 @@
-ROLLBACK; 
-BEGIN;
-COMMIT ; 
-

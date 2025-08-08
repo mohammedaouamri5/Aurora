@@ -1,5 +1,9 @@
 package utile
 
+import "github.com/mohammedaouamri5/Aurora/models"
+
+
+
 
 
 
@@ -10,3 +14,18 @@ type Wave struct {
 	TextOutput  string `json:"text_output"`
 	PhoniticsOutput string `json:"phonitics_output"`
 }
+
+
+type MessageStreem struct {
+	ConversationID string 
+	Message models.Message
+}
+
+
+
+
+
+
+
+
+

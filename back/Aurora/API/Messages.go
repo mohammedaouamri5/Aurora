@@ -15,7 +15,7 @@ import (
 	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo/options"
+	// "go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func GetMessage(ctx *gin.Context) {
@@ -58,18 +58,22 @@ func GetMessage(ctx *gin.Context) {
 
 	collection := initializers.DB.Mongo.Collection("conversations")
 
-	filter := bson.M{"conversationid": *request.ConversationID}
+	filter := bson.M{"conversationID": *request.ConversationID}
 
 	// Upsert: true → creates the document if it doesn't exist
 
 	var result models.Chat
 	if err := collection.FindOne(__ctx, filter).Decode(&result); err != nil {
-		log.Error(err.Error())
+		log.Errorf("The error in getting the conversation of %s  is %s ", *request.ConversationID, err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+	log.Infof("You Gonna store %+v in %s ", result.Messages, *request.ConversationID)
+	constant.CurrentChats.Store(
+		*request.ConversationID, result.Messages,
+	)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		*request.ConversationID: result.Messages,
@@ -119,42 +123,39 @@ func SendTextMessage(ctx *gin.Context) {
 	}
 
 	// MongoDB push message to conversation
-	__ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
-	defer cancel()
+	go utile.PushMessageToMongodb(*request.ConversationID, message)
 
-	collection := initializers.DB.Mongo.Collection("conversations")
-
-	filter := bson.M{"conversationid": *request.ConversationID}
-	update := bson.M{
-		"$push": bson.M{
-			"messages": message,
-		},
-	}
-
-	// Upsert: true → creates the document if it doesn't exist
-	opts := options.Update().SetUpsert(true)
-
-	if _, err := collection.UpdateOne(__ctx, filter, update, opts); err != nil {
-		log.Error(err.Error())
-		ctx.JSON(http.StatusInternalServerError,
-			gin.H{
-				"error": err.Error(),
-			},
-		)
+	messages, IsOk := constant.CurrentChats.Load(*request.ConversationID)
+	if !IsOk {
+		log.Error(messages)
+		log.Errorf("The messages of %s is not stord yet", *request.ConversationID)
+		ctx.Status(http.StatusInternalServerError)
 		return
-
 	}
 
-	go TextResponce(*request.TextMessage)
+	messages = append(messages.([]models.Message), message)
+	go TextResponce(*request.ConversationID, messages.([]models.Message))
 
 	ctx.JSON(http.StatusOK, message)
 }
 
-func TextResponce(__text string) {
-	text_responce, _ := ai.LLM(__text)
+func TextResponce(__ID string, __messages []models.Message) {
 
-	constant.TheChatChanel <- models.Chat{
-		ConversationID: text_responce,
-		Messages:       nil,
+	text_responce, _ := ai.LLM(__messages)
+	now := time.Now()
+	new_message := models.Message{
+		CreatedAt: &now,
+		Role:      "assistant",
+		Content:   text_responce,
 	}
+	__messages = append([]models.Message{new_message}, __messages...)
+
+	constant.TheMassegeChanel <-  utile.MessageStreem{
+		ConversationID: __ID,
+		Message: new_message,
+	}
+
+	constant.CurrentChats.Store(__ID, __messages)
+
+	go utile.PushMessageToMongodb(__ID, new_message)
 }

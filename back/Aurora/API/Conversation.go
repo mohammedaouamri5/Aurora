@@ -85,10 +85,17 @@ func NewChat(ctx *gin.Context) {
 		return
 	}
 
+	messages := []models.Message{
+		models.Message{
+			Role:    "system",
+			Content: constant.DefaultAssistant.SystemPrompt,
+		},
+	}
+
 	SaveToMongoDB := func(newConversation models.Conversation, err error) bool {
 		conversation := models.Chat{
 			ConversationID: newConversation.ConversationID.String(),
-			Messages:       make([]models.Message, 0),
+			Messages:       messages,
 		}
 		__ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
@@ -101,7 +108,7 @@ func NewChat(ctx *gin.Context) {
 		}
 		__ctx.Done()
 
-		log.Info(conversation)
+		log.Infof("%+v" , conversation)
 		return false
 	}
 

@@ -13,8 +13,8 @@ import (
 	"github.com/mattn/go-colorable"
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/initializers"
-	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/route"
+	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -99,7 +99,7 @@ func WebSocketHandler(c *gin.Context) {
 		case <-ctx.Done():
 			log.Info("WebSocket handler shutting down")
 			return
-		case msg := <-constant.TheChatChanel:
+		case msg := <-constant.TheMassegeChanel:
 			writeMu.Lock()
 			err := conn.WriteJSON(msg)
 			writeMu.Unlock()
@@ -116,7 +116,7 @@ func main() {
 	InitLog()
 
 	// Initialize the global chat channel
-	constant.TheChatChanel = make(chan models.Chat, 1)
+	constant.TheMassegeChanel = make( chan utile.MessageStreem, 1)
 
 	// Load environment variables
 	cfg, err := initializers.LoadConfig(".")

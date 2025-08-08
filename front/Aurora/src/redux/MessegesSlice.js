@@ -1,4 +1,3 @@
-
 import { CommentBank, Filter9 } from "@mui/icons-material";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
@@ -124,18 +123,25 @@ const MessagesSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-
-
-
       .addCase(GetMessages.fulfilled, (state, action) => {
         state.data = SetMessages({ Data: state.data, ...action.payload })
+
+
+
         return
       })
       .addCase(SendTextMessage.fulfilled, (state, action) => {
-
         console.log(".addCase(SendTextMessage.fulfilled,", action.payload)
         state.data = PushMessage({ Data: state.data, ...action.payload })
         return
+      })
+      .addCase("ADD_MESSAGE", (state, action) => {
+
+        console.log("THE ACTION ==> ", action)
+        console.log("THE STATE  ==> ", state)
+        console.log("state.data  ==> ", state.data)
+        const { ConversationID, Message } = action.payload;
+        state.data = PushMessage({ Data: state.data, ConversationID, Message });
       })
   },
 });

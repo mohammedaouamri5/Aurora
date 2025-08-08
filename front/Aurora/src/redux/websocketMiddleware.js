@@ -1,3 +1,5 @@
+import { useSelector } from "react-redux";
+
 let socket = null;
 
 const websocketMiddleware = store => next => action => {
@@ -14,10 +16,13 @@ const websocketMiddleware = store => next => action => {
       };
 
       socket.onmessage = event => {
-      
+
         console.log(event.data)
         const data = JSON.parse(event.data);
-        store.dispatch({ type: 'WS_MESSAGE_RECEIVED', payload: data });
+        console.log("store : ", store)
+        console.log("store.getState() : ", store.getState())
+        store.dispatch({ type: 'WS_MESSAGE_RECEIVED', Messages: store.getState().Messages, payload: data });
+        store.dispatch({ type: 'ADD_MESSAGE', Messages: store.getState().Messages, payload: data });
       };
 
       socket.onclose = () => {

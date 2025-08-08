@@ -5,7 +5,8 @@ const initialState = {
 
 
 export default function websocketReducer(state = initialState, action) {
-console.log("THE ACTION ==> " , action)
+  console.log("THE ACTION ==> ", action)
+  console.log("THE STATE  ==> ", state)
   switch (action.type) {
     case 'WS_CONNECTED':
       return { ...state, connected: true };

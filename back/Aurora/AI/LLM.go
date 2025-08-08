@@ -3,10 +3,12 @@ package ai
 import (
 	"bytes"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/mohammedaouamri5/Aurora/models"
+	log "github.com/sirupsen/logrus"
 )
 
 /*
@@ -28,11 +30,11 @@ curl http://localhost:1234/api/v0/chat/completions \
 
 
 */
-
-func LLM(__text string) (string, error) {
+// THIS WILL USE CONTEX
+func LLM(messags []models.Message) (string, error) {
 
 	type Message struct {
-		Role string `json:"role"`
+		Role    string `json:"role"`
 		Content string `json:"content"`
 	}
 
@@ -63,10 +65,10 @@ func LLM(__text string) (string, error) {
 	}
 
 	type Choice struct {
-		Index        int     `json:"index"`
-		Logprobs     *string `json:"logprobs"`
-		FinishReason string  `json:"finish_reason"`
-		Message      Message `json:"message"`
+		Index        int            `json:"index"`
+		Logprobs     *string        `json:"logprobs"`
+		FinishReason string         `json:"finish_reason"`
+		Message      models.Message `json:"message"`
 	}
 
 	type LLMResponse struct {
@@ -82,19 +84,8 @@ func LLM(__text string) (string, error) {
 	}
 
 	log.Info("llm")
-
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"messages": []map[string]string{
-			{
-				"role": "system",
-				"content": `You are an Speech to Speech 
-				whisper model for STT 
-				then mistral as an LLM 
-				then kokoro for TTS
-				that gives direct , unfiltered, and brutally honest responses. Avoid unnecessary politeness and sugarcoating. Be specific and straight to the point and dont yap try to use the minimome word posibal.`,
-			},
-			{"role": "user", "content": __text},
-		},
+		"messages":    messags,
 		"temperature": 0.8,
 		"max_tokens":  100, // Adjust as needed
 		"stream":      false,
@@ -105,7 +96,9 @@ func LLM(__text string) (string, error) {
 	if err != nil {
 		log.Error(err.Error())
 	}
-
+	log.Infof(
+		"You Will send this to the LLM %+v ", string(requestBody),
+	)
 	resp, err := http.Post("http://localhost:1234/api/v0/chat/completions", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Error(err.Error())

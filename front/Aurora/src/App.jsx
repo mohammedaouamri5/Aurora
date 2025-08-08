@@ -71,7 +71,7 @@ function App() {
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   useEffect(() => {
     if (isAuthenticated) {
-      navigate("/conversation");
+     // navigate("/conversation");
     }
   }, [user, isAuthenticated]);
 
