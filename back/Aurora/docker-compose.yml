@@ -1,5 +1,4 @@
 version: '3.8'
-
 services:
   postgres:
     image: postgres:latest
@@ -9,20 +8,18 @@ services:
     ports:
       - "6500:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - ./postgres-data:/var/lib/postgresql/data
     networks:
       - app_network
-
   mongodb:
     image: mongo:latest
     container_name: mongodb_container
     ports:
       - "27017:27017"
     volumes:
-      - ./mongodb:/data/db
+      - ./mongo-data:/data/db
     networks:
       - app_network
-
   redis:
     image: redis:latest
     container_name: redis_container
@@ -30,7 +27,6 @@ services:
       - "6370:6379"
     networks:
       - app_network
-
   mongo-express:
     image: mongo-express
     container_name: mongo_express
@@ -40,7 +36,6 @@ services:
       - ME_CONFIG_MONGODB_SERVER=mongodb
     networks:
       - app_network
-
   whisper-server:
     image: ghcr.io/mutablelogic/go-whisper:latest
     container_name: whisper-server
@@ -51,17 +46,57 @@ services:
           devices:
             - capabilities: [gpu]
     volumes:
-      - whisper:/data
+      - ./whisper-data:/data
     ports:
       - "8888:80"
     networks:
       - app_network
-
-volumes:
-  postgres_data:
-  whisper:
-
+  qdrant:
+    image: qdrant/qdrant:latest
+    container_name: qdrant_container
+    ports:
+      - "6333:6333"  # REST API
+      - "6334:6334"  # gRPC API
+    volumes:
+      - ./qdrant-data:/qdrant/storage
+    environment:
+      - QDRANT__SERVICE__HTTP_PORT=6333
+      - QDRANT__SERVICE__GRPC_PORT=6334
+    networks:
+      - app_network
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama_container
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    ports:
+      - "11434:11434"  # Ollama API
+    volumes:
+      - ./ollama-data:/root/.ollama
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+    networks:
+      - app_network
+  open-webui:
+    image: ghcr.io/open-webui/open-webui:main
+    container_name: open_webui_container
+    ports:
+      - "3000:8080"  # Web UI
+    volumes:
+      - ./open-webui-data:/app/backend/data
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - WEBUI_SECRET_KEY=your-secret-key-here
+    depends_on:
+      - ollama
+    networks:
+      - app_network
+    restart: unless-stopped
 networks:
   app_network:
     driver: bridge
-

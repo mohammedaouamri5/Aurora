@@ -15,7 +15,7 @@ func PushMessageToMongodb(conversationID string, message models.Message) {
 	__ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
 	defer cancel()
 
-	collection := initializers.DB.Mongo.Collection("conversations")
+	collection := initializers.Clients.Mongo.Collection("conversations")
 
 	filter := bson.M{"conversationID": conversationID}
 	update := bson.M{

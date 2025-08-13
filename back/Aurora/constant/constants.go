@@ -5,7 +5,6 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mohammedaouamri5/Aurora/models"
-	"github.com/mohammedaouamri5/Aurora/utile"
 )
 
 var DefaultAssistantID = "18d1b57a-d4cd-4d50-879d-b9a3a6754bdc"
@@ -23,9 +22,21 @@ var DefaultAssistant = models.Assistant{
 	`,
 }
 
+var DefaultUserConfig = models.UserConfig{
+	MainChatter: models.ModelConfig{
+		Name:        "dolphin-llama-13b",
+		Temperature: 0.8,
+		Max_tokens:  400,
+	},
+	TitelGenerator: models.ModelConfig{
+		Name:        "llama-3.2-1b-instruct",
+		Temperature: 0.8,
+		Max_tokens:  50,
+	},
+}
 
 var NewChat = "New Chat"
 
-var TheMassegeChanel chan  utile.MessageStreem
+var TheMassegeChanel chan MessageStreem
 
 var CurrentChats sync.Map

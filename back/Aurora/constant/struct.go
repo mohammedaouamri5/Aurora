@@ -1,4 +1,4 @@
-package utile
+package constant
 
 import "github.com/mohammedaouamri5/Aurora/models"
 

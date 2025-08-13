@@ -56,7 +56,7 @@ func GetMessage(ctx *gin.Context) {
 	__ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
 	defer cancel()
 
-	collection := initializers.DB.Mongo.Collection("conversations")
+	collection := initializers.Clients.Mongo.Collection("conversations")
 
 	filter := bson.M{"conversationID": *request.ConversationID}
 
@@ -141,7 +141,10 @@ func SendTextMessage(ctx *gin.Context) {
 
 func TextResponce(__ID string, __messages []models.Message) {
 
-	text_responce, _ := ai.LLM(__messages)
+	responceStreem := make(chan string)
+
+	go ai.LLM(__messages, utile.GetUserConfi("").MainChatter, responceStreem)
+	text_responce := <-responceStreem
 	now := time.Now()
 	new_message := models.Message{
 		CreatedAt: &now,
@@ -150,9 +153,9 @@ func TextResponce(__ID string, __messages []models.Message) {
 	}
 	__messages = append([]models.Message{new_message}, __messages...)
 
-	constant.TheMassegeChanel <-  utile.MessageStreem{
+	constant.TheMassegeChanel <- constant.MessageStreem{
 		ConversationID: __ID,
-		Message: new_message,
+		Message:        new_message,
 	}
 
 	constant.CurrentChats.Store(__ID, __messages)

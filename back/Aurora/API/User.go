@@ -29,7 +29,7 @@ func CreateUser(ctx *gin.Context) {
 	User := models.User{
 		Name: request.Name,
 	}
-	if err := initializers.DB.Orm.Create(&User).Error; err != nil {
+	if err := initializers.Clients.Orm.Create(&User).Error; err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError,
 			gin.H{
@@ -48,7 +48,7 @@ func GetAllUsers(ctx * gin.Context) {
 
 	response := make( []models.User, 0)
 
-	if err := initializers.DB.Orm.Find(&response).Error ; err != nil { 
+	if err := initializers.Clients.Orm.Find(&response).Error ; err != nil { 
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError,
 			gin.H{

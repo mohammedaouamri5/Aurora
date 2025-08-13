@@ -2,14 +2,16 @@ package api
 
 import (
 	"encoding/base64"
-	"github.com/gin-gonic/gin"
-	ai "github.com/mohammedaouamri5/Aurora/AI"
-	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
 	"mime/multipart"
 	"net/http"
 	"os"
 	"path/filepath"
+
+	"github.com/gin-gonic/gin"
+	ai "github.com/mohammedaouamri5/Aurora/AI"
+	"github.com/mohammedaouamri5/Aurora/constant"
+	"github.com/mohammedaouamri5/Aurora/utile"
+	log "github.com/sirupsen/logrus"
 )
 
 func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
@@ -46,7 +48,7 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 
 func Audio(ctx *gin.Context) {
 
-	wave := utile.Wave{}
+	wave := constant.Wave{}
 
 	_, AudioInput, err := reciveAudio(ctx)
 	if err != nil {

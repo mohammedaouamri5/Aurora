@@ -14,7 +14,6 @@ import (
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/route"
-	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -116,7 +115,7 @@ func main() {
 	InitLog()
 
 	// Initialize the global chat channel
-	constant.TheMassegeChanel = make( chan utile.MessageStreem, 1)
+	constant.TheMassegeChanel = make( chan constant.MessageStreem, 1)
 
 	// Load environment variables
 	cfg, err := initializers.LoadConfig(".")

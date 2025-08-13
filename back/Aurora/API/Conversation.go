@@ -75,7 +75,7 @@ func NewChat(ctx *gin.Context) {
 		Titel:       constant.NewChat,
 	}
 
-	if err := initializers.DB.Orm.Create(&newConversation).Error; err != nil {
+	if err := initializers.Clients.Orm.Create(&newConversation).Error; err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError,
 			gin.H{
@@ -100,7 +100,7 @@ func NewChat(ctx *gin.Context) {
 		__ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
 		defer cancel()
 
-		collection := initializers.DB.Mongo.Collection("conversations")
+		collection := initializers.Clients.Mongo.Collection("conversations")
 		_, err = collection.InsertOne(__ctx, conversation)
 		if err != nil {
 			log.Error(err.Error())
@@ -143,7 +143,7 @@ func SELECTALLConversation(ctx *gin.Context) {
 		Where(fmt.Sprintf("'%s' = user_id", UserID.(string))).
 		ToSql()
 
-	rows, err := initializers.DB.Raw.Query(sql, args...)
+	rows, err := initializers.Clients.Raw.Query(sql, args...)
 	if err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{

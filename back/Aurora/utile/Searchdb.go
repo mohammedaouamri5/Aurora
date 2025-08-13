@@ -38,7 +38,7 @@ func uUIDExist(__id string, __table string) (bool, error) {
 		return fmt.Sprintf("SELECT COUNT(*)  as count  FROM %s WHERE %s = '%s';", __table, __colomn, __id)
 	}
 
-	result, err := initializers.DB.Raw.Query(Query(__id))
+	result, err := initializers.Clients.Raw.Query(Query(__id))
 
 	if err != nil {
 		log.Error(err.Error())
@@ -72,7 +72,7 @@ func IsExist(p_table string, condition string) (bool, error) {
 	}
 	var count int
 	if err := initializers.
-		DB.Raw.
+		Clients.Raw.
 		QueryRow(sql, args...).
 		Scan(&count); err != nil {
 		log.Error(err.Error())

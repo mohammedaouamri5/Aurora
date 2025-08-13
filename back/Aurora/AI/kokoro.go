@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
 )
@@ -143,7 +144,7 @@ func get_voice(__event_id string) (map[string]interface{}, error) {
 	return response, nil
 }
 
-func KokoroCLI(ctx *gin.Context, __wave *utile.Wave) error {
+func KokoroCLI(ctx *gin.Context, __wave *constant.Wave) error {
 	__wave.AudioOutput = __wave.AudioInput + ".res.wav"
 
 	payload := map[string]interface{}{

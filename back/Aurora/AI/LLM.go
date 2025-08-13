@@ -3,6 +3,7 @@ package ai
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 
@@ -31,11 +32,24 @@ curl http://localhost:1234/api/v0/chat/completions \
 
 */
 // THIS WILL USE CONTEX
-func LLM(messags []models.Message) (string, error) {
 
-	type Message struct {
-		Role    string `json:"role"`
-		Content string `json:"content"`
+func OLLAMA(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {
+	pushToChannel := func(str string) {
+		result <- str
+	}
+
+	return , nil
+}
+
+func LLM(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {
+	pushToChannel := func(str string) {
+		if result != nil {
+			select {
+			case result <- str:
+			default:
+				// Channel is full or closed, don't block
+			}
+		}
 	}
 
 	type Usage struct {
@@ -83,47 +97,66 @@ func LLM(messags []models.Message) (string, error) {
 		Runtime   Runtime   `json:"runtime"`
 	}
 
-	log.Info("llm")
 	requestBody, err := json.Marshal(map[string]interface{}{
-		"messages":    messags,
-		"temperature": 0.8,
-		"max_tokens":  100, // Adjust as needed
+		"model":       model.Name,
+		"messages":    messages,
+		"temperature": model.Temperature,
+		"max_tokens":  model.Max_tokens,
 		"stream":      false,
 	})
-
-	log.Info(string(requestBody))
-
 	if err != nil {
 		log.Error(err.Error())
+		pushToChannel("")
+		return "", err
+
 	}
-	log.Infof(
-		"You Will send this to the LLM %+v ", string(requestBody),
+
+	log.Infof("Sending request to LLM: %s", string(requestBody))
+
+	resp, err := http.Post(
+		"http://localhost:1234/api/v0/chat/completions",
+		"application/json",
+		bytes.NewBuffer(requestBody),
 	)
-	resp, err := http.Post("http://localhost:1234/api/v0/chat/completions", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
 		log.Error(err.Error())
+		pushToChannel("")
+		return "", err
 	}
-
 	defer resp.Body.Close()
+
+	// Check HTTP status code
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		log.Errorf("HTTP error %d: %s", resp.StatusCode, string(body))
+		pushToChannel("")
+		return "", err
+	}
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Error(err.Error())
+		pushToChannel("")
+		return "", err
 	}
 
-	var mapBody LLMResponse
-	if err := json.Unmarshal(body, &mapBody); err != nil {
+	var response LLMResponse
+	if err := json.Unmarshal(body, &response); err != nil {
 		log.Error(err.Error())
+		pushToChannel("")
+		return "", err
 	}
-	log.Info("\n", string(body))
-	log.Infof("\n %+v", mapBody)
-	log.Infof("\n %+v", mapBody.Choices)
-	log.Infof("\n %+v", mapBody.Choices[0].Message)
 
-	return mapBody.Choices[0].Message.Content, nil
+	// Safety check for choices slice
+	if len(response.Choices) == 0 {
+		pushToChannel("")
+		return "", errors.New("no choices returned from LLM")
+	}
 
+	content := response.Choices[0].Message.Content
+	pushToChannel(content)
+	return content, nil
 }
-
 func Llm(ctx *gin.Context, __text string) (string, error) {
 	type Message struct {
 		Role string `json:"role"`

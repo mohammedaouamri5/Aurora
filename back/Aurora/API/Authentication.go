@@ -34,7 +34,7 @@ func Register(c *gin.Context) {
 		Password: password,
 	}
 
-	if err := initializers.DB.Orm.Create(&user).Error; err != nil {
+	if err := initializers.Clients.Orm.Create(&user).Error; err != nil {
 		logrus.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, H{"error": err.Error()})
 		return
@@ -81,7 +81,7 @@ func Login(c *gin.Context) {
 	}
 
 	var user models.User
-	if err := initializers.DB.Orm.Where("email = ?", data.Email).First(&user).Error; err != nil {
+	if err := initializers.Clients.Orm.Where("email = ?", data.Email).First(&user).Error; err != nil {
 		logrus.Error(err.Error())
 		c.JSON(401, gin.H{"message": err.Error()})
 		return
@@ -124,7 +124,7 @@ func RegisterLogin(c *gin.Context) {
 		Password: password,
 	}
 
-	if err := initializers.DB.Orm.Create(&user).Error; err != nil {
+	if err := initializers.Clients.Orm.Create(&user).Error; err != nil {
 		logrus.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, H{"error": err.Error()})
 		return
@@ -158,7 +158,7 @@ func User(c *gin.Context) {
 	}
 	var user models.User
 
-	if err := initializers.DB.Orm.Where("user_id = ?", id).First(&user).Error; err != nil {
+	if err := initializers.Clients.Orm.Where("user_id = ?", id).First(&user).Error; err != nil {
 		logrus.Error(err.Error())
 		c.JSON(401, gin.H{"message": "user not found"})
 		return

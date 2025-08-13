@@ -7,8 +7,19 @@ tmp_dir = "tmp"
   bin = "./tmp/main"
   cmd = "./build.sh" 
   delay = 1000
-  exclude_dir = ["assets", "tmp", "vendor", "testdata" , "mongodb"]
-  exclude_file = []
+  exclude_dir = [
+      "assets"          ,
+      "tmp"             ,
+      "vendor"          ,
+      "testdata"        ,
+      "open-webui-data" ,
+      "postgres-data"   ,
+      "mongo-data"      ,
+      "whisper-data"    ,
+      "qdrant-data"     ,
+      "ollama-data" 
+    ]
+exclude_file = []
   exclude_regex = ["_test.go"]
   exclude_unchanged = false
   follow_symlink = false

@@ -3,9 +3,11 @@ package utile
 import (
 	"fmt"
 	"time"
+
+	"github.com/mohammedaouamri5/Aurora/constant"
 )
 
-func PrintUtile(p_data Wave) {
+func PrintUtile(p_data constant.Wave) {
 
 	// AudioInput string `json:"audio_input"`
 	// TextInput  string `json:"text_input"`

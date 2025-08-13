@@ -24,6 +24,10 @@ LOG/*.LOG
 go.work
 go.work.sum
 
+open-webui-data/
+postgres-data/
+mongo-data/
+whisper-data/
+qdrant-data/
+ollama-data/
 
-
-mongodb

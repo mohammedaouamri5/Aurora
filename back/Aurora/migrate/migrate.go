@@ -21,9 +21,9 @@ func init() {
 }
 
 func main() {
-	initializers.DB.Orm.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
-	initializers.DB.Orm.Exec("CREATE EXTENSION IF NOT EXISTS \"fuzzystrmatch\"")
-	initializers.DB.Orm.AutoMigrate(models.User{})
-	initializers.DB.Orm.AutoMigrate(models.Conversation{})
+	initializers.Clients.Orm.Exec("CREATE EXTENSION IF NOT EXISTS \"uuid-ossp\"")
+	initializers.Clients.Orm.Exec("CREATE EXTENSION IF NOT EXISTS \"fuzzystrmatch\"")
+	initializers.Clients.Orm.AutoMigrate(models.User{})
+	initializers.Clients.Orm.AutoMigrate(models.Conversation{})
 	fmt.Println("👍 Migration complete")
 }

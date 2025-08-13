@@ -2,6 +2,7 @@ import { Box } from "@mui/material"
 import { MessageInput } from "./input/message-input.jsx"
 import { MessageContainer } from "./messages/message-container.jsx"
 import { COLORS } from "../constants/sidebar.js"
+import { useTheme } from "./../hooks/use-theme"
 
 export function MainContent({
   sidebarOpen,
