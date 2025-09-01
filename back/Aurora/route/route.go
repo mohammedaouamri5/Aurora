@@ -2,10 +2,20 @@ package route
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	api "github.com/mohammedaouamri5/Aurora/API"
+	"github.com/mohammedaouamri5/Aurora/constant"
 )
+
+
+var upgrader = websocket.Upgrader{
+	CheckOrigin: func(r *http.Request) bool { return true },
+}
+
+
 
 func Routers(router *gin.Engine) {
 
@@ -13,6 +23,22 @@ func Routers(router *gin.Engine) {
 	router.OPTIONS("/*path", func(c *gin.Context) {
 		c.Status(204)
 	})
+
+	{
+		router.GET("/ws/:userid/notification", func(c *gin.Context) {
+			userid := c.Param("userid")
+
+			conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+			if err != nil {
+				c.String(500, "WebSocket upgrade failed")
+				return
+			}
+
+			url := "/ws/" + userid + "/messages"
+			constant.WSmanager.Open(url, conn, time.Millisecond) // AutoClose = true
+
+		})
+	}
 
 	{
 		router.GET("/conversations", api.JWTauth, api.SELECTALLConversation)

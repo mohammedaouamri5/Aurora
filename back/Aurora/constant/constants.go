@@ -5,6 +5,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/mohammedaouamri5/Aurora/models"
+	wsm "github.com/mohammedaouamri5/WSM"
 )
 
 var DefaultAssistantID = "18d1b57a-d4cd-4d50-879d-b9a3a6754bdc"
@@ -24,14 +25,30 @@ var DefaultAssistant = models.Assistant{
 
 var DefaultUserConfig = models.UserConfig{
 	MainChatter: models.ModelConfig{
-		Name:        "dolphin-llama-13b",
+		Name:        "gemma3:270m",
 		Temperature: 0.8,
 		Max_tokens:  400,
+		Options: map[string]interface{}{
+			"temperature":    0.7,
+			"num_ctx":        1024,
+			"num_predict":    25,
+			"top_p":          0.9,
+			"repeat_penalty": 1.1,
+			"num_thread":     8,
+		},
 	},
 	TitelGenerator: models.ModelConfig{
-		Name:        "llama-3.2-1b-instruct",
+		Name:        "gemma3:270m",
 		Temperature: 0.8,
-		Max_tokens:  50,
+		Max_tokens:  400,
+		Options: map[string]interface{}{
+			"temperature":    0.7,
+			"num_ctx":        1024,
+			"num_predict":    25,
+			"top_p":          0.9 ,
+			"repeat_penalty": 1.1,
+			"num_thread":     8,
+		},
 	},
 }
 
@@ -40,3 +57,8 @@ var NewChat = "New Chat"
 var TheMassegeChanel chan MessageStreem
 
 var CurrentChats sync.Map
+
+
+var WSmanager = wsm.NewManager()
+
+

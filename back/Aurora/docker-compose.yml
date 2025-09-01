@@ -1,4 +1,4 @@
-version: '3.8'
+version: '2.8'
 services:
   postgres:
     image: postgres:latest
@@ -39,12 +39,6 @@ services:
   whisper-server:
     image: ghcr.io/mutablelogic/go-whisper:latest
     container_name: whisper-server
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
     volumes:
       - ./whisper-data:/data
     ports:
@@ -67,19 +61,10 @@ services:
   ollama:
     image: ollama/ollama:latest
     container_name: ollama_container
-    runtime: nvidia
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - capabilities: [gpu]
     ports:
       - "11434:11434"  # Ollama API
     volumes:
       - ./ollama-data:/root/.ollama
-    environment:
-      - NVIDIA_VISIBLE_DEVICES=all
-      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
     networks:
       - app_network
   open-webui:

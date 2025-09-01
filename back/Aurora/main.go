@@ -2,8 +2,12 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"net/http"
+	"os"
+	"runtime"
+	"strings"
 	"sync"
 	"time"
 
@@ -18,20 +22,41 @@ import (
 )
 
 func InitLog() {
-	log.SetOutput(io.MultiWriter(colorable.NewColorableStdout()))
-	log.SetReportCaller(true)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp:          true,
-		ForceColors:            true,
-		ForceQuote:             true,
-		PadLevelText:           true,
-		DisableLevelTruncation: false,
-		FieldMap: log.FieldMap{
-			log.FieldKeyMsg:  "@message",
-			log.FieldKeyFunc: "@caller",
-		},
-		TimestampFormat: time.RFC3339,
-	})
+        log.SetOutput(io.MultiWriter(colorable.NewColorableStdout()))
+        log.SetReportCaller(true)
+
+        wd, err := os.Getwd()
+        if err != nil {
+                wd = "" // fallback
+        }
+
+        log.SetFormatter(&log.TextFormatter{
+                FullTimestamp:          true,
+                ForceColors:            true,
+                ForceQuote:             true,
+                PadLevelText:           true,
+                DisableLevelTruncation: false,
+                TimestampFormat:        time.TimeOnly,
+                CallerPrettyfier: func(f *runtime.Frame) (string, string) {
+                        file := f.File
+                        if strings.HasPrefix(file, wd) {
+                                file = strings.TrimPrefix(file, wd+string(os.PathSeparator))
+                        }
+                        file = fmt.Sprintf("%s:%d", file, f.Line)
+
+                        funcName := f.Function
+                        if idx := strings.LastIndex(funcName, "/"); idx != -1 {
+                                funcName = funcName[idx+1:]
+                        }
+                        return " " + funcName + "\n\t", file
+                },
+
+                // Inject newline+tab before the message
+                DisableQuote: true, // so \n\t is not escaped
+                FieldMap: log.FieldMap{
+                        log.FieldKeyMsg: "@message",
+                },
+        })
 }
 
 var upgrader = websocket.Upgrader{

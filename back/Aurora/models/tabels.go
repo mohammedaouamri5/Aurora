@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	ollama "github.com/mohammedaouamri5/go-ollama"
+	ollama "github.com/ollama/ollama/api"
 )
 
 type User struct {
@@ -18,6 +18,7 @@ type ModelConfig struct {
 	Name        string
 	Temperature float32
 	Max_tokens  int
+	Options     map[string]any `json:"options"`
 }
 
 type UserConfig struct {
@@ -42,11 +43,14 @@ type Conversation struct {
 }
 
 type Message struct {
-	CreatedAt *time.Time `bson:"createdAt" json:"createdAt"`
-	Role      string     `bson:"role" json:"role"` // e.g. "User" or "Assistant"
-	Content   string     `bson:"content" json:"content"`
-	AudioPath string     `bson:"audioPath" json:"audioPath"`
-	ollama.Message
+	CreatedAt *time.Time         `bson:"createdAt" json:"createdAt"`
+	Role      string             `bson:"role" json:"role"` // e.g. "User" or "Assistant"
+	Content   string             `bson:"content" json:"content"`
+	AudioPath string             `bson:"audioPath" json:"audioPath"`
+	Thinking  string             `json:"thinking,omitempty"`
+	Images    []ollama.ImageData `json:"images,omitempty"`
+	ToolCalls []ollama.ToolCall  `json:"tool_calls,omitempty"`
+	ToolName  string             `json:"tool_name,omitempty"`
 }
 
 type Chat struct {

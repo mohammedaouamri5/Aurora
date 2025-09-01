@@ -4,7 +4,8 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	ollama "github.com/mohammedaouamri5/go-ollama"
+	ollama "github.com/ollama/ollama/api"
+
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/redis/go-redis/v9"
 	log "github.com/sirupsen/logrus"

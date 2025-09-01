@@ -2,13 +2,17 @@ package ai
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"io"
 	"net/http"
+	"strings"
 
 	"github.com/gin-gonic/gin"
+	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
+	ollama "github.com/ollama/ollama/api"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -34,11 +38,56 @@ curl http://localhost:1234/api/v0/chat/completions \
 // THIS WILL USE CONTEX
 
 func OLLAMA(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {
-	pushToChannel := func(str string) {
-		result <- str
+	ctx := context.Background()
+
+	ollamaMessages := make([]ollama.Message, len(messages))
+	for i, msg := range messages {
+		ollamaMessages[i].Role = msg.Role
+		ollamaMessages[i].Content = msg.Content
+		ollamaMessages[i].Thinking = msg.Thinking
+		ollamaMessages[i].Images = msg.Images
+		ollamaMessages[i].ToolCalls = msg.ToolCalls
+		ollamaMessages[i].ToolName = msg.ToolName
+
 	}
 
-	return , nil
+	stream := false
+	req := &ollama.ChatRequest{
+		Model:    model.Name,
+		Messages: ollamaMessages,
+		Stream:   &stream,
+	}
+
+	b, _ := json.MarshalIndent(req, "", "  ")
+	log.Infof("ChatRequest: %s", b)
+
+	var finalResult strings.Builder
+
+	respFunc := func(resp ollama.ChatResponse) error {
+
+		log.Infof(
+			"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
+			resp.Message.Content,
+			ollamaMessages,
+		)
+
+		finalResult.WriteString(resp.Message.Content)
+		log.Infof(
+			"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
+			resp.Message.Content,
+			ollamaMessages,
+		)
+		return nil
+	}
+
+	log.Infof("ChatRequest: %s", b)
+	err := initializers.Clients.Ollama.Chat(ctx, req, respFunc)
+	if err != nil {
+		return "Error", err
+	}
+
+	// Return the full collected response
+	return finalResult.String(), nil
 }
 
 func LLM(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {

@@ -11,6 +11,7 @@ import (
 	ai "github.com/mohammedaouamri5/Aurora/AI"
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/initializers"
+	"github.com/mohammedaouamri5/Aurora/logic"
 	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/utile"
 	log "github.com/sirupsen/logrus"
@@ -53,7 +54,7 @@ func GetMessage(ctx *gin.Context) {
 	}
 
 	// MongoDB push message to conversation
-	__ctx, cancel := context.WithTimeout(context.Background(), 5*time.Millisecond)
+	__ctx, cancel := context.WithTimeout(context.Background(), 10*time.Millisecond)
 	defer cancel()
 
 	collection := initializers.Clients.Mongo.Collection("conversations")
@@ -140,25 +141,39 @@ func SendTextMessage(ctx *gin.Context) {
 }
 
 func TextResponce(__ID string, __messages []models.Message) {
+	// get the Responce From LLM 
+	text_responce, err :=  ai.OLLAMA(__messages, utile.GetUserConfi("").MainChatter, nil)
 
-	responceStreem := make(chan string)
+	if err != nil {
+		log.Error(err.Error())
+		return
+	}
 
-	go ai.LLM(__messages, utile.GetUserConfi("").MainChatter, responceStreem)
-	text_responce := <-responceStreem
+	// mkmessage and push it to the array
 	now := time.Now()
 	new_message := models.Message{
 		CreatedAt: &now,
 		Role:      "assistant",
 		Content:   text_responce,
 	}
-	__messages = append([]models.Message{new_message}, __messages...)
 
+
+	// Send the New Message to the front-end
 	constant.TheMassegeChanel <- constant.MessageStreem{
 		ConversationID: __ID,
 		Message:        new_message,
 	}
 
+	// Cach The Message
+	__messages = append([]models.Message{new_message}, __messages...)
 	constant.CurrentChats.Store(__ID, __messages)
 
+	// MK title
+	// if len(__messages)%5 == 0 {
+	if true {
+		go logic.MakeTitle(__ID, __messages)
+	}
+
+	// Save New Message
 	go utile.PushMessageToMongodb(__ID, new_message)
 }
