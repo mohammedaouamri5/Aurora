@@ -40,13 +40,13 @@ var DefaultUserConfig = models.UserConfig{
 	TitelGenerator: models.ModelConfig{
 		Name:        "gemma3:270m",
 		Temperature: 0.8,
-		Max_tokens:  400,
+		Max_tokens:  100,
 		Options: map[string]interface{}{
 			"temperature":    0.7,
 			"num_ctx":        1024,
-			"num_predict":    25,
+			"num_predict":    5,
 			"top_p":          0.9 ,
-			"repeat_penalty": 1.1,
+			"repeat_penalty": 2.1,
 			"num_thread":     8,
 		},
 	},
