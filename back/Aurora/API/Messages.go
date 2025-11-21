@@ -8,7 +8,6 @@ import (
 
 	"github.com/gin-gonic/gin"
 	// "github.com/mohammedaouamri5/Aurora/constant"
-	ai "github.com/mohammedaouamri5/Aurora/AI"
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/logic"
@@ -71,7 +70,6 @@ func GetMessage(ctx *gin.Context) {
 		})
 		return
 	}
-	log.Infof("You Gonna store %+v in %s ", result.Messages, *request.ConversationID)
 	constant.CurrentChats.Store(
 		*request.ConversationID, result.Messages,
 	)
@@ -135,45 +133,7 @@ func SendTextMessage(ctx *gin.Context) {
 	}
 
 	messages = append(messages.([]models.Message), message)
-	go TextResponce(*request.ConversationID, messages.([]models.Message))
+	go logic.TextResponce(*request.ConversationID, messages.([]models.Message))
 
 	ctx.JSON(http.StatusOK, message)
-}
-
-func TextResponce(__ID string, __messages []models.Message) {
-	// get the Responce From LLM 
-	text_responce, err :=  ai.OLLAMA(__messages, utile.GetUserConfi("").MainChatter, nil)
-
-	if err != nil {
-		log.Error(err.Error())
-		return
-	}
-
-	// mkmessage and push it to the array
-	now := time.Now()
-	new_message := models.Message{
-		CreatedAt: &now,
-		Role:      "assistant",
-		Content:   text_responce,
-	}
-
-
-	// Send the New Message to the front-end
-	constant.TheMassegeChanel <- constant.MessageStreem{
-		ConversationID: __ID,
-		Message:        new_message,
-	}
-
-	// Cach The Message
-	__messages = append([]models.Message{new_message}, __messages...)
-	constant.CurrentChats.Store(__ID, __messages)
-
-	// MK title
-	// if len(__messages)%5 == 0 {
-	if true {
-		go logic.MakeTitle(__ID, __messages)
-	}
-
-	// Save New Message
-	go utile.PushMessageToMongodb(__ID, new_message)
 }

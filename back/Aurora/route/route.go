@@ -10,12 +10,9 @@ import (
 	"github.com/mohammedaouamri5/Aurora/constant"
 )
 
-
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
-
-
 
 func Routers(router *gin.Engine) {
 
@@ -25,8 +22,7 @@ func Routers(router *gin.Engine) {
 	})
 
 	{
-		router.GET("/ws/:userid/notification", func(c *gin.Context) {
-			userid := c.Param("userid")
+		router.GET("/ws/messages", func(c *gin.Context) {
 
 			conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 			if err != nil {
@@ -34,9 +30,8 @@ func Routers(router *gin.Engine) {
 				return
 			}
 
-			url := "/ws/" + userid + "/messages"
-			constant.WSmanager.Open(url, conn, time.Millisecond) // AutoClose = true
-
+			url := "/ws/messages"
+			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
 		})
 	}
 

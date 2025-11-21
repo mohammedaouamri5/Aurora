@@ -56,9 +56,12 @@ var NewChat = "New Chat"
 
 var TheMassegeChanel chan MessageStreem
 
+
+
+
 var CurrentChats sync.Map
 
 
-var WSmanager = wsm.NewManager()
+var WSmessages = wsm.NewManager()
 
 

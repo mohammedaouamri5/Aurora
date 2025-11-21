@@ -58,29 +58,27 @@ func OLLAMA(messages []models.Message, model models.ModelConfig, result chan str
 		Stream:   &stream,
 	}
 
-	b, _ := json.MarshalIndent(req, "", "  ")
-	log.Infof("ChatRequest: %s", b)
 
 	var finalResult strings.Builder
 
 	respFunc := func(resp ollama.ChatResponse) error {
 
-		log.Infof(
-			"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
-			resp.Message.Content,
-			ollamaMessages,
-		)
+		// log.Infof(
+		//		"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
+		//		resp.Message.Content,
+		//		ollamaMessages,
+		//)
 
 		finalResult.WriteString(resp.Message.Content)
-		log.Infof(
-			"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
-			resp.Message.Content,
-			ollamaMessages,
-		)
+		// log.Infof(
+		// 	"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
+		// 	resp.Message.Content,
+		// 	ollamaMessages,
+		// )
 		return nil
 	}
 
-	log.Infof("ChatRequest: %s", b)
+	// log.Infof("ChatRequest: %s", b)
 	err := initializers.Clients.Ollama.Chat(ctx, req, respFunc)
 	if err != nil {
 		return "Error", err
@@ -160,7 +158,7 @@ func LLM(messages []models.Message, model models.ModelConfig, result chan string
 
 	}
 
-	log.Infof("Sending request to LLM: %s", string(requestBody))
+	// log.Infof("Sending request to LLM: %s", string(requestBody))
 
 	resp, err := http.Post(
 		"http://localhost:1234/api/v0/chat/completions",
@@ -300,9 +298,9 @@ func Llm(ctx *gin.Context, __text string) (string, error) {
 		log.Error(err.Error())
 	}
 	log.Info("\n", string(body))
-	log.Infof("\n %+v", mapBody)
-	log.Infof("\n %+v", mapBody.Choices)
-	log.Infof("\n %+v", mapBody.Choices[0].Message)
+	// log.Infof("\n %+v", mapBody)
+	// log.Infof("\n %+v", mapBody.Choices)
+	// log.Infof("\n %+v", mapBody.Choices[0].Message)
 
 	return mapBody.Choices[0].Message.Content, nil
 }

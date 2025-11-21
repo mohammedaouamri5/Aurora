@@ -86,7 +86,7 @@ func NewChat(ctx *gin.Context) {
 	}
 
 	messages := []models.Message{
-		models.Message{
+		{
 			Role:    "system",
 			Content: constant.DefaultAssistant.SystemPrompt,
 		},
@@ -108,7 +108,7 @@ func NewChat(ctx *gin.Context) {
 		}
 		__ctx.Done()
 
-		log.Infof("%+v" , conversation)
+		log.Infof("%+v", conversation)
 		return false
 	}
 
