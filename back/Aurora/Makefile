@@ -37,7 +37,9 @@ lint:
 	golangci-lint run
 	@echo "Linting complete! ✅"
 
-
+log-errors:
+	@echo "Logging errors... 📚"
+	./log-errors.sh ./tmp/build.log
 
 
 CleanDB:
@@ -50,18 +52,7 @@ MigrateDB:
 	go run ./migrate/migrate.go
 	@echo "Database migrated! 👌"
 
-Fill: 
+Fill:
 	@echo "Filling the database... 🔥"
-
-	go run ./migrate/fill.go
+	go run ./migrate/fill.go $(ARGS)
 	@echo "Database full! 👌"
-
-
-
-
-
-
-
-
-
-
