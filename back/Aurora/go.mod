@@ -60,7 +60,7 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.2 // indirect
 	github.com/mohammedaouamri5/WSM v0.1.2 // indirect
-	github.com/mohammedaouamri5/go-log v0.1.1 // indirect
+	github.com/mohammedaouamri5/go-log v0.3.0 // indirect
 	github.com/montanaflynn/stats v0.7.1 // indirect
 	github.com/muesli/termenv v0.16.0 // indirect
 	github.com/ollama/ollama v0.11.4 // indirect

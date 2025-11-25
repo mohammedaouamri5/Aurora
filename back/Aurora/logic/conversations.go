@@ -32,18 +32,14 @@ func TextResponce(__ID string, __messages []models.Message) {
 	}
 
 	// Send the New Message to the front-end
-	{
-		log.Info("Sending New Message to the front-end")
-		if __bytes, __err := json.Marshal(constant.MessageStreem{
-			ConversationID: __ID,
-			Message:        new_message,
-		}); __err != nil {
-			log.Error(__err.Error())
-			return
-		} else {
-			constant.WSmessages.Send("/ws/messages", __bytes)
-		}
-		log.Info("New Message Sended to the front-end")
+	if __bytes, __err := json.Marshal(constant.MessageStreem{
+		ConversationID: __ID,
+		Message:        new_message,
+	}); __err != nil {
+		log.Error(__err.Error())
+		return
+	} else {
+		constant.WSmessages.Send("/ws/messages", __bytes)
 	}
 	// Cach The Message
 	__messages = append([]models.Message{new_message}, __messages...)

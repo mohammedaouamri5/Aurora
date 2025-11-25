@@ -54,7 +54,6 @@ var DefaultUserConfig = models.UserConfig{
 
 var NewChat = "New Chat"
 
-var TheMassegeChanel chan MessageStreem
 
 
 

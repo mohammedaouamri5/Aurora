@@ -36,7 +36,7 @@ export function MessageContainer({ messages, onAddMessage }) {
         <Box sx={{ p: 4, maxWidth: "800px", mx: "auto", width: "100%" }}>
           {messages.map((message, index) => (
 
-            <MessageBubble key={message.createdAt || index} message={message} />
+            <MessageBubble key={index} message={message} />
           ))}
         </Box>
       ) : (

@@ -4,8 +4,8 @@ import userDataReducer from "./userDataSlice.js";
 import signsReducer from "./signsSlice.js";
 import ConversationsNameReducer from "./ConversationaNameSlice.js";
 import MessagesReducer from "./MessegesSlice";
-import websocketMiddleware from "./websocketMiddleware.js";
-import websocketReducer from "./websocketReducer.js";
+import websocketMessages from "./websocketMiddleware.js";
+import MessagesWSReducer from "./websocketReducer.js";
 
 const store = configureStore({
   reducer: {
@@ -14,10 +14,9 @@ const store = configureStore({
     userData: userDataReducer,
     signs: signsReducer,
     ConversationsName: ConversationsNameReducer,
-    websocket: websocketReducer,
+    websocket: MessagesWSReducer,
   },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware().concat(websocketMiddleware),
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(websocketMessages),
 });
 
 export default store;

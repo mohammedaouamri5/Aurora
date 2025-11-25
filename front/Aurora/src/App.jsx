@@ -1,6 +1,6 @@
 import { use, useState } from "react";
 import Conversation from "./pages/conversation";
-import { connectToSocket } from "./redux/wsActions"
+import { connectToMessagesWS } from "./redux/wsActions"
 import UserCreation from "./User/Creation";
 /*
 const App = () => {
@@ -64,8 +64,9 @@ function App() {
 
 
   useEffect(() => {
-    if (!connected) { dispatch(connectToSocket()); }
-  }, [dispatch]);
+    console.log("Connected:", connected);
+    if (!connected) { dispatch(connectToMessagesWS()); }
+  }, [dispatch , connected]);
 
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);

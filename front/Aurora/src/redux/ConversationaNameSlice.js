@@ -7,8 +7,6 @@ export const GetConversations = createAsyncThunk(
   "conversations/fetchconversation",
   async (_, { rejectWithValue }) => {
     try {
-
-
       const token = localStorage.getItem("token"); // get your JWT
 
       const res = await axios.get(`${url}/conversations`, {

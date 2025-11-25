@@ -10,6 +10,7 @@ export const GetMessages = createAsyncThunk(
     try {
       const token = localStorage.getItem("token"); // get your JWT
       if (!token) return rejectWithValue("Unauthorized: No token found");
+      if (!ConversationID) return rejectWithValue("Unauthorized: No ConversationID found");
       const res = await axios.get(`${url}/Messages`, {
         headers: {
           Authorization: `${token}`,
@@ -40,17 +41,6 @@ export const SendTextMessage = createAsyncThunk(
   "Messages/fetchSendMessagesOfGivenChat",
   async ({ ConversationID, Textmessage }, { rejectWithValue }) => {
 
-    // const dispatch = useDispatch();
-    // const isConnected = useSelector()
-    // if (!isConnected) {
-    //   console.log("Messanger.js:47.36IsConnected : " , isConnected)
-    //   dispatch(connectToSocket());
-    // }
-
-
-
-
-
     try {
       const token = localStorage.getItem("token"); // get your JWT
       if (!token) return rejectWithValue("Unauthorized: No token found");
@@ -64,8 +54,10 @@ export const SendTextMessage = createAsyncThunk(
         }
       });
 
+
       var result = res.data
       return { Message: result, ConversationID: ConversationID };
+      socket = new WebSocket(action.payload.url);
     } catch (err) {
       console.log(err);
       return rejectWithValue("Something went wrong");
@@ -125,21 +117,15 @@ const MessagesSlice = createSlice({
       })
       .addCase(GetMessages.fulfilled, (state, action) => {
         state.data = SetMessages({ Data: state.data, ...action.payload })
-
-
-
+        console.log("GetMessages" , state.data)
         return
       })
       .addCase(SendTextMessage.fulfilled, (state, action) => {
-        console.log(".addCase(SendTextMessage.fulfilled,", action.payload)
         state.data = PushMessage({ Data: state.data, ...action.payload })
+        console.log("GetMessages" , state.data)
         return
       })
       .addCase("ADD_MESSAGE", (state, action) => {
-
-        console.log("THE ACTION ==> ", action)
-        console.log("THE STATE  ==> ", state)
-        console.log("state.data  ==> ", state.data)
         const { ConversationID, Message } = action.payload;
         state.data = PushMessage({ Data: state.data, ConversationID, Message });
       })
