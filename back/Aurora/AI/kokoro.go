@@ -12,7 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 /*
@@ -41,13 +41,13 @@ func get_event(__text string) (string, error) {
 	log.Info(string(requestBody))
 
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return "", err
 	}
 
 	resp, err := http.Post("http://127.0.0.1:7860/gradio_api/call/create", "application/json", bytes.NewBuffer(requestBody))
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return "", err
 	}
 
@@ -55,7 +55,7 @@ func get_event(__text string) (string, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return "", err
 	}
 
@@ -63,7 +63,7 @@ func get_event(__text string) (string, error) {
 
 	err = json.Unmarshal(body, &result)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return "", err
 	}
 
@@ -105,7 +105,7 @@ func get_voice(__event_id string) (map[string]interface{}, error) {
 
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return nil, err
 	}
 	streamS := strings.Split(string(body), "\n\n")

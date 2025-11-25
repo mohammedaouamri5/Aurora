@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 func Wisper(ctx *gin.Context, filePath string) (string, error) {
@@ -94,9 +94,9 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 		return "", err
 	}
 
-	log.Infof("Transcription Task: %s", whisperResp.Task)
-	log.Infof("Language: %s", whisperResp.Language)
-	log.Infof("Full Text: %s", whisperResp.Text)
+	log.Info("Transcription Task: %s", whisperResp.Task)
+	log.Info("Language: %s", whisperResp.Language)
+	log.Info("Full Text: %s", whisperResp.Text)
 
 	return whisperResp.Text, nil
 }

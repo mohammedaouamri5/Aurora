@@ -11,7 +11,7 @@ import (
 	ai "github.com/mohammedaouamri5/Aurora/AI"
 	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
@@ -24,7 +24,7 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 	}
 
 	if filepath.Ext(file.Filename) != ".wav" {
-		log.Warnf("Invalid file type: %s", file.Filename)
+		log.Warn("Invalid file type: %s", file.Filename)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "Only .wav files are allowed"})
 		return nil, "", nil
 	}
@@ -32,7 +32,7 @@ func reciveAudio(ctx *gin.Context) (*multipart.FileHeader, string, error) {
 	// Generate a unique filename using timestamp
 	filePath, err := utile.NewPath()
 	if err != nil {
-		log.Error(err)
+		log.Error(err.Error())
 		return nil, "", err
 	}
 
@@ -68,8 +68,7 @@ func Audio(ctx *gin.Context) {
 	}
 	wave.TextInput = TextInput
 
-	log.Info(" \n\n\n\n we've git the Inputtext :  \n\n\n\n ")
-	log.Info(wave)
+	log.WithObj(wave).Info(" \n\n\n\n we've git the Inputtext :  \n\n\n\n ")
 	utile.PrintUtile(wave)
 
 	TextOutput, err := ai.Llm(ctx, TextInput)
@@ -97,7 +96,7 @@ func Audio(ctx *gin.Context) {
 	// Encode audio file to Base64
 	audioBase64 := base64.StdEncoding.EncodeToString(audioData)
 
-	log.Infof(" \n\n\n\n%+v\n\n\n\n ", wave)
+	log.WithObj(wave).Info("")
 	// Send JSON with Base64 audio
 	ctx.JSON(http.StatusOK, gin.H{
 		"data":  wave,

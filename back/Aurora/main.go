@@ -1,35 +1,16 @@
 package main
 
 import (
-	"io"
 	"net/http"
-	"time"
-
+	"os"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/mattn/go-colorable"
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/route"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
-func InitLog() {
-	log.SetOutput(io.MultiWriter(colorable.NewColorableStdout()))
-	log.SetReportCaller(true)
-	log.SetFormatter(&log.TextFormatter{
-		FullTimestamp:          true,
-		ForceColors:            true,
-		ForceQuote:             true,
-		PadLevelText:           true,
-		DisableLevelTruncation: false,
-		FieldMap: log.FieldMap{
-			log.FieldKeyMsg:  "@message",
-			log.FieldKeyFunc: "@caller",
-		},
-		TimestampFormat: time.RFC3339,
-	})
-}
 
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool {
@@ -39,7 +20,10 @@ var upgrader = websocket.Upgrader{
 
 
 func main() {
-	InitLog()
+	log.INIT(
+		os.Stdout, 
+		log.NewStructuredLoggerFormatter(log.MonokaiTheme()),
+		)
 
 	// Load environment variables
 	cfg, err := initializers.LoadConfig(".")

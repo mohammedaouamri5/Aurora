@@ -11,7 +11,7 @@ import (
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 func TextResponce(__ID string, __messages []models.Message) {

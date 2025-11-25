@@ -6,7 +6,7 @@ import (
 
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )

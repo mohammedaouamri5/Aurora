@@ -13,7 +13,7 @@ import (
 	"github.com/mohammedaouamri5/Aurora/logic"
 	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 	"go.mongodb.org/mongo-driver/bson"
 	// "go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -64,7 +64,7 @@ func GetMessage(ctx *gin.Context) {
 
 	var result models.Chat
 	if err := collection.FindOne(__ctx, filter).Decode(&result); err != nil {
-		log.Errorf("The error in getting the conversation of %s  is %s ", *request.ConversationID, err.Error())
+		log.WithErr(err).Info("The error in getting the conversation of %s  is %s ", *request.ConversationID)
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
 		})
@@ -126,8 +126,10 @@ func SendTextMessage(ctx *gin.Context) {
 
 	messages, IsOk := constant.CurrentChats.Load(*request.ConversationID)
 	if !IsOk {
-		log.Error(messages)
-		log.Errorf("The messages of %s is not stord yet", *request.ConversationID)
+		log.
+			WithField("conversationID", *request.ConversationID).
+			WithField("messages", messages).
+			Error("The messages of %s is not stord yet", *request.ConversationID)
 		ctx.Status(http.StatusInternalServerError)
 		return
 	}

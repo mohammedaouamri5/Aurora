@@ -13,7 +13,7 @@ import (
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
 	ollama "github.com/ollama/ollama/api"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 /*
@@ -175,7 +175,7 @@ func LLM(messages []models.Message, model models.ModelConfig, result chan string
 	// Check HTTP status code
 	if resp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(resp.Body)
-		log.Errorf("HTTP error %d: %s", resp.StatusCode, string(body))
+		log.Error("HTTP error %d: %s", resp.StatusCode, string(body))
 		pushToChannel("")
 		return "", err
 	}

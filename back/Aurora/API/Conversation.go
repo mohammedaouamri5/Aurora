@@ -14,7 +14,7 @@ import (
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
 	"github.com/mohammedaouamri5/Aurora/utile"
-	log "github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 )
 
 func NewChat(ctx *gin.Context) {
@@ -108,12 +108,12 @@ func NewChat(ctx *gin.Context) {
 		}
 		__ctx.Done()
 
-		log.Infof("%+v", conversation)
+		log.WithObj(conversation).Info("The Information Has been Saved to MongoDB")
 		return false
 	}
 
 	go SaveToMongoDB(newConversation, err)
-	log.Info(newConversation)
+	log.WithObj(newConversation).Info("The Information Has been Saved to SQL")
 	ctx.JSON(http.StatusOK, newConversation)
 
 }

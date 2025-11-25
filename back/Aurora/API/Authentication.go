@@ -10,7 +10,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/mohammedaouamri5/Aurora/initializers"
 	"github.com/mohammedaouamri5/Aurora/models"
-	"github.com/sirupsen/logrus"
+	"github.com/mohammedaouamri5/go-log/log"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -21,7 +21,7 @@ func Register(c *gin.Context) {
 		Password string    `json:"password,omitempty" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -35,7 +35,7 @@ func Register(c *gin.Context) {
 	}
 
 	if err := initializers.Clients.Orm.Create(&user).Error; err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, H{"error": err.Error()})
 		return
 	}
@@ -82,7 +82,7 @@ func Login(c *gin.Context) {
 
 	var user models.User
 	if err := initializers.Clients.Orm.Where("email = ?", data.Email).First(&user).Error; err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(401, gin.H{"message": err.Error()})
 		return
 	}
@@ -96,7 +96,7 @@ func Login(c *gin.Context) {
 
 	token, err := claims.SignedString([]byte(initializers.Cfg.JWT))
 	if err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(500, gin.H{"message": "could not generate token"})
 		return
 	}
@@ -111,7 +111,7 @@ func RegisterLogin(c *gin.Context) {
 		Password string `json:"password,omitempty" binding:"required"`
 	}
 	if err := c.ShouldBindJSON(&data); err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
@@ -125,7 +125,7 @@ func RegisterLogin(c *gin.Context) {
 	}
 
 	if err := initializers.Clients.Orm.Create(&user).Error; err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(http.StatusInternalServerError, H{"error": err.Error()})
 		return
 	}
@@ -142,7 +142,7 @@ func RegisterLogin(c *gin.Context) {
 
 	token, err := claims.SignedString([]byte(initializers.Cfg.JWT))
 	if err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(500, gin.H{"message": "could not generate token"})
 		return
 	}
@@ -159,7 +159,7 @@ func User(c *gin.Context) {
 	var user models.User
 
 	if err := initializers.Clients.Orm.Where("user_id = ?", id).First(&user).Error; err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(401, gin.H{"message": "user not found"})
 		return
 	}
@@ -181,7 +181,7 @@ func JWTauth(c *gin.Context) {
 
 
 	if err != nil {
-		logrus.Error(err.Error())
+		log.Error(err.Error())
 		c.JSON(401, gin.H{"message": "unauthenticated"})
 		c.Abort()
 		return

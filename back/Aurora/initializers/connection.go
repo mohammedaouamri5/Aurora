@@ -6,9 +6,9 @@ import (
 	"fmt"
 	ollama "github.com/ollama/ollama/api"
 
+	"github.com/mohammedaouamri5/go-log/log"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/redis/go-redis/v9"
-	log "github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"gorm.io/driver/postgres"
