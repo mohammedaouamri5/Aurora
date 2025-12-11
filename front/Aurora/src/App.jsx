@@ -59,7 +59,7 @@ const DashboardLayout = () => {
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate()
-  const connected = useSelector(state => state.websocket.connected);
+  const connected = useSelector(state => state.websocketMessages.connected);
 
 
 

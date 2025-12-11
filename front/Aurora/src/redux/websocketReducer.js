@@ -5,10 +5,11 @@ const initialState = {
   reconnecting: false,
 };
 
-export default function websocketReducer(state = initialState, action) {
+export  const websocketMessageReducer = (state = initialState, action) => {
 
   switch (action.type) {
-    case 'WS_CONNECTED':
+
+    case 'WSM_CONNECTED':
       return {
         ...state,
         connected: true,
@@ -16,26 +17,26 @@ export default function websocketReducer(state = initialState, action) {
         reconnecting: false
       };
 
-    case 'WS_DISCONNECTED':
+    case 'WSM_DISCONNECTED':
       return {
         ...state,
         connected: false,
         reconnecting: true
       };
 
-    case 'WS_MESSAGE_RECEIVED':
+    case 'WSM_MESSAGE_RECEIVED':
       return {
         ...state,
         messages: [...state.messages, action.payload]
       };
 
-    case 'WS_ERROR':
+    case 'WSM_ERROR':
       return {
         ...state,
         error: action.payload
       };
 
-    case 'WS_MAX_RECONNECT_FAILED':
+    case 'WSM_MAX_RECONNECT_FAILED':
       return {
         ...state,
         connected: false,
@@ -43,7 +44,7 @@ export default function websocketReducer(state = initialState, action) {
         error: 'Max reconnection attempts reached'
       };
 
-    case 'WS_SEND_FAILED':
+    case 'WSM_SEND_FAILED':
       return {
         ...state,
         error: action.payload
