@@ -1,3 +1,4 @@
+import { ExploreOff } from "@mui/icons-material";
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
 
@@ -15,7 +16,7 @@ export const GetConversations = createAsyncThunk(
         },
       });
 
-      var  result  = res.data.conversations
+      var result = res.data.conversations
       return result;
     } catch (err) {
       console.log(err);
@@ -48,6 +49,15 @@ export const AddConversation = createAsyncThunk(
     }
   }
 );
+
+export const UpdateTitle = (any) => {
+
+  console.log(any)
+}
+
+
+
+
 const ConversationsNameSlice = createSlice({
   name: "ConversationsName",
   initialState: {
@@ -55,7 +65,17 @@ const ConversationsNameSlice = createSlice({
     status: "idle",
     error: null,
   },
-  reducers: {},
+  reducers: {
+    updateTitle: (state, action) => {
+      const { ConversationID, Title } = action.payload;
+      const conversation = state.data.find(c => c.ConversationID === ConversationID);
+      if (conversation) {
+        conversation.Title = Title; // ✅ Fixed typo
+      }
+    }
+  },
+
+
   extraReducers: (builder) => {
     builder
       .addCase(GetConversations.pending, (state) => {
@@ -75,7 +95,15 @@ const ConversationsNameSlice = createSlice({
       })
       .addCase(AddConversation.rejected, (state, action) => {
         state.error = action.payload;
-      });
+      })
+      .addCase("UPDATE_TITLE", (state, action) => {
+        const { ConversationID, Title } = action.payload;
+        state.data.forEach((conversation) => {
+          if (conversation.ConversationID == ConversationID) {
+            conversation.Titel = Title
+          }
+        })
+      })
   },
 });
 

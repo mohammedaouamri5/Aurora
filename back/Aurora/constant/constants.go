@@ -39,8 +39,8 @@ var DefaultUserConfig = models.UserConfig{
 	},
 	TitelGenerator: models.ModelConfig{
 		Name:        "gemma3:270m",
-		Temperature: 0.8,
-		Max_tokens:  100,
+		Temperature: 0.6,
+		Max_tokens:  10,
 		Options: map[string]interface{}{
 			"temperature":    0.7,
 			"num_ctx":        1024,
@@ -62,5 +62,6 @@ var CurrentChats sync.Map
 
 
 var WSmessages = wsm.NewManager()
+var WStitels = wsm.NewManager()
 
 

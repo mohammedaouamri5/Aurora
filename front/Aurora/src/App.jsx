@@ -1,6 +1,6 @@
 import { use, useState } from "react";
 import Conversation from "./pages/conversation";
-import { connectToMessagesWS } from "./redux/wsActions"
+import { connectToMessagesWS , connectToTitelsWS } from "./redux/wsActions"
 import UserCreation from "./User/Creation";
 /*
 const App = () => {
@@ -59,14 +59,20 @@ const DashboardLayout = () => {
 function App() {
   const dispatch = useDispatch();
   const navigate = useNavigate()
-  const connected = useSelector(state => state.websocketMessages.connected);
+  const websocketMessagesconnected = useSelector(state => state.websocketMessages.connected);
+  const websocketTitlesconnected = useSelector(state => state.websocketTitles.connected);
 
 
 
   useEffect(() => {
-    console.log("Connected:", connected);
-    if (!connected) { dispatch(connectToMessagesWS()); }
-  }, [dispatch , connected]);
+    console.log("Messages Connected:", websocketMessagesconnected);
+    if (!websocketMessagesconnected) { dispatch(connectToMessagesWS()); }
+  }, [dispatch , websocketMessagesconnected]);
+
+  useEffect(() => {
+    console.log("Titels Connected:", websocketTitlesconnected);
+    if (!websocketTitlesconnected) { dispatch(connectToTitelsWS()); }
+  }, [dispatch , websocketTitlesconnected]);
 
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);

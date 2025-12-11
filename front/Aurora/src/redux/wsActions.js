@@ -6,6 +6,10 @@ export const connectToMessagesWS = () => ({
   payload: { url: `/ws/messages` }, // use your Go server's WSS endpoint
 });
 
+export const connectToTitelsWS = () => ({
+  type: 'WST_CONNECT',
+  payload: { url: `/ws/titles` }, // use your Go server's WSS endpoint
+});
 
 
 export const sendWSMessage = (payload) => ({

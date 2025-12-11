@@ -139,6 +139,8 @@ github.com/mohammedaouamri5/go-log v0.1.1 h1:QK/iBz5cPwzdcUkT4E5XpCMTvk1EDv4+3+l
 github.com/mohammedaouamri5/go-log v0.1.1/go.mod h1:7h1CXyIiyQ79D4gJ+scNmPe76+R8N6KLMUPmKylSsos=
 github.com/mohammedaouamri5/go-log v0.3.0 h1:LAQVr0u3H+uNzRmnc1Tc+PEauG1un76Scxo6T3SfGMA=
 github.com/mohammedaouamri5/go-log v0.3.0/go.mod h1:7h1CXyIiyQ79D4gJ+scNmPe76+R8N6KLMUPmKylSsos=
+github.com/mohammedaouamri5/go-log v0.3.1 h1:pfbfwH/kAALgTpoLNloXyQMTQBLo7a22Wd9/Y2LD8U0=
+github.com/mohammedaouamri5/go-log v0.3.1/go.mod h1:7h1CXyIiyQ79D4gJ+scNmPe76+R8N6KLMUPmKylSsos=
 github.com/mohammedaouamri5/go-ollama v0.0.0-20250809175805-f30ebaa27667 h1:TmxMQT3LLxoie4mhHh2PSE3yUBtqiQguQbdVY6xA1mQ=
 github.com/mohammedaouamri5/go-ollama v0.0.0-20250809175805-f30ebaa27667/go.mod h1:Rd7xgRKWAdUBKLUlCJ8gyhqqY3A1VHp1+AddseWD+IM=
 github.com/montanaflynn/stats v0.7.1 h1:etflOAAHORrCC44V+aR6Ftzort912ZU+YLiSTuV8eaE=

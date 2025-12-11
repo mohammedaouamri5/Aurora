@@ -1,6 +1,7 @@
 package route
 
 import (
+	log "github.com/mohammedaouamri5/go-log/log"
 	"net/http"
 	"time"
 
@@ -31,6 +32,22 @@ func Routers(router *gin.Engine) {
 			}
 
 			url := "/ws/messages"
+			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
+		})
+
+
+
+
+		router.GET("/ws/titles", func(c *gin.Context) {
+
+			conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
+			if err != nil {
+				log.WithErr(err).Error("WebSocket upgrade failed")
+				c.String(500, "WebSocket upgrade failed")
+				return
+			}
+
+			url := "/ws/titles"
 			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
 		})
 	}

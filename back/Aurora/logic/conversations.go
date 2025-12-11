@@ -2,7 +2,6 @@ package logic
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 	"time"
 
@@ -16,7 +15,7 @@ import (
 
 func TextResponce(__ID string, __messages []models.Message) {
 	// get the Responce From LLM
-	text_responce, err := ai.OLLAMA(__messages, utile.GetUserConfi("").MainChatter, nil)
+	text_responce, err := ai.OLLAMA(__messages, utile.GetUserConfig("").MainChatter, nil)
 
 	if err != nil {
 		log.Error(err.Error())
@@ -46,8 +45,8 @@ func TextResponce(__ID string, __messages []models.Message) {
 	constant.CurrentChats.Store(__ID, __messages)
 
 	// MK title
-	if len(__messages)%5 == 0 {
-		// go MakeTitle(__ID, __messages)
+	if true {
+		go MakeTitle(__ID, __messages)
 	}
 
 	// Save New Message
@@ -55,28 +54,23 @@ func TextResponce(__ID string, __messages []models.Message) {
 }
 
 func MakeTitle(__ID string, __messages []models.Message) {
-	messages := []models.Message{
-		{
-			Role:    "system",
-			Content: "in one line discribe the conversation , I want to give it a titel , I need it to  be short",
-		},
-		{
+	messages := append(__messages , models.Message{
 			Role:    "user",
-			Content: fmt.Sprintf("%+v", __messages),
-		},
-	}
+			Content: "In 5 words maximum whats the topic of this conversation",
+	})
 
 	// Get response from LLM
-	textResponse, err := ai.OLLAMA(messages, utile.GetUserConfi("").MainChatter, nil)
+	textResponse, err := ai.OLLAMA(messages, utile.GetUserConfig("").TitelGenerator, nil)
 	if err != nil {
 		log.Error(err.Error())
 		return
 	}
 
-	log.Info("New Title: " + textResponse)
 	title := strings.TrimSpace(textResponse)
 
-	// Use parameterized query to prevent SQL injection
+	if len(title) > 20 {title = title[:20]}
+
+	log.Info("New Title: " + title)
 
 	sql := `UPDATE public.conversations SET titel=$1 WHERE conversation_id =$2 ;`
 
@@ -84,6 +78,18 @@ func MakeTitle(__ID string, __messages []models.Message) {
 	if err != nil {
 		log.Error("Failed to update title: " + err.Error())
 		return
+	}
+
+	if __bytes, __err := json.Marshal(constant.TitleStreem{
+		ConversationID: __ID,
+		Title:   title,
+	}); __err != nil {
+		log.Error(__err.Error())
+		return
+	} else {
+		constant.WSmessages.Send("/ws/titles", __bytes)
+
+		log.WithField("title", &title).WithField("conversation_id", &__ID).WithField("type", "title").Info(" title for conversation is Sended")
 	}
 
 	log.Info("Updated title for conversation " + __ID + ": " + title)

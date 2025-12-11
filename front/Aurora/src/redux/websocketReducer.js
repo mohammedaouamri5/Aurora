@@ -5,11 +5,12 @@ const initialState = {
   reconnecting: false,
 };
 
-export  const websocketMessageReducer = (state = initialState, action) => {
+export const websocketMessageReducer = (state = initialState, action) => {
 
   switch (action.type) {
 
     case 'WSM_CONNECTED':
+
       return {
         ...state,
         connected: true,
@@ -45,6 +46,39 @@ export  const websocketMessageReducer = (state = initialState, action) => {
       };
 
     case 'WSM_SEND_FAILED':
+      return {
+        ...state,
+        error: action.payload
+      };
+
+    default:
+      return state;
+  }
+}
+
+
+
+
+export const websocketTitleReducer = (state = initialState, action) => {
+
+  switch (action.type) {
+
+    case 'WST_CONNECTED':
+      return {
+        ...state,
+        connected: true,
+        error: null,
+        reconnecting: false
+      };
+
+    case 'WST_DISCONNECTED':
+      return {
+        ...state,
+        connected: false,
+        reconnecting: true
+      };
+
+    case 'WST_ERROR':
       return {
         ...state,
         error: action.payload

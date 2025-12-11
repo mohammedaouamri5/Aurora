@@ -21,6 +21,11 @@ type MessageStreem struct {
 	Message models.Message
 }
 
+type TitleStreem struct {
+	ConversationID string 
+	Title string
+}
+
 
 
 
