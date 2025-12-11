@@ -108,12 +108,12 @@ func NewChat(ctx *gin.Context) {
 		}
 		__ctx.Done()
 
-		log.WithObj(conversation).Info("The Information Has been Saved to MongoDB")
+		log.WithField("conversation", &conversation).Info("The Information Has been Saved to MongoDB")
 		return false
 	}
 
 	go SaveToMongoDB(newConversation, err)
-	log.WithObj(newConversation).Info("The Information Has been Saved to SQL")
+	log.Info("The Information Has been Saved to SQL")
 	ctx.JSON(http.StatusOK, newConversation)
 
 }
