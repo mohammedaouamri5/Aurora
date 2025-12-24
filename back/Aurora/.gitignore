@@ -30,4 +30,4 @@ mongo-data/
 whisper-data/
 qdrant-data/
 ollama-data/
-
+minio-data/
