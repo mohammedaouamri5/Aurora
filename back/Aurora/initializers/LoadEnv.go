@@ -5,24 +5,25 @@ import (
 )
 
 type Config struct {
-	DBHost         string `mapstructure:"POSTGRES_HOST"`
-	DBUserName     string `mapstructure:"POSTGRES_USER"`
-	DBUserPassword string `mapstructure:"POSTGRES_PASSWORD"`
-	DBName         string `mapstructure:"POSTGRES_DB"`
-	DBPort         string `mapstructure:"POSTGRES_PORT"`
-	ServerPort     string `mapstructure:"PORT"`
-	POSTGRES_URL   string `mapstructure:"POSTGRES_URL"`
-	ClientOrigin   string `mapstructure:"CLIENT_ORIGIN"`
-	TIME_FORMAT    string `mapstructure:"TIME_FORMAT"`
-	TIME_NULL      string `mapstructure:"TIME_NULL"`
-	JWT            string `mapstructure:"JWT"`
-	NULL_UUID      string `mapstructure:"NULL_UUID"`
-	ALL_UUID       string `mapstructure:"ALL_UUID"`
-	ACCESS_TOKEN   string `mapstructure:"ACCESS_TOKEN"`
-	MONGO_URI      string `mapstructure:"MONGO_URI"`
-	REDIS_HOST      string `mapstructure:"REDIS_HOST"`
-	REDIS_PORT      string `mapstructure:"REDIS_PORT"`
-
+	DBHost              string `mapstructure:"POSTGRES_HOST"`
+	DBUserName          string `mapstructure:"POSTGRES_USER"`
+	DBUserPassword      string `mapstructure:"POSTGRES_PASSWORD"`
+	DBName              string `mapstructure:"POSTGRES_DB"`
+	DBPort              string `mapstructure:"POSTGRES_PORT"`
+	ServerPort          string `mapstructure:"PORT"`
+	POSTGRES_URL        string `mapstructure:"POSTGRES_URL"`
+	ClientOrigin        string `mapstructure:"CLIENT_ORIGIN"`
+	TIME_FORMAT         string `mapstructure:"TIME_FORMAT"`
+	TIME_NULL           string `mapstructure:"TIME_NULL"`
+	JWT                 string `mapstructure:"JWT"`
+	NULL_UUID           string `mapstructure:"NULL_UUID"`
+	ALL_UUID            string `mapstructure:"ALL_UUID"`
+	ACCESS_TOKEN        string `mapstructure:"ACCESS_TOKEN"`
+	MONGO_URI           string `mapstructure:"MONGO_URI"`
+	REDIS_HOST          string `mapstructure:"REDIS_HOST"`
+	REDIS_PORT          string `mapstructure:"REDIS_PORT"`
+	MINIO_ROOT_USER     string `mapstructure:"MINIO_ROOT_USER"`
+	MINIO_ROOT_PASSWORD string `mapstructure:"MINIO_ROOT_PASSWORD"`
 }
 
 var Cfg *Config

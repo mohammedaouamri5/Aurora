@@ -82,6 +82,19 @@ services:
     networks:
       - app_network
     restart: unless-stopped
+  minio:
+    image: minio/minio:latest
+    container_name: minio_container
+    env_file:
+      - ./app.env
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"   # S3 API
+      - "9001:9001"   # Web Console (UI)
+    volumes:
+      - ./minio-data:/data
+    networks:
+      - app_network
 networks:
   app_network:
     driver: bridge
