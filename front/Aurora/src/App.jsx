@@ -1,7 +1,3 @@
-import { use, useState } from "react";
-import Conversation from "./pages/conversation";
-import { connectToMessagesWS , connectToTitelsWS } from "./redux/wsActions"
-import UserCreation from "./User/Creation";
 /*
 const App = () => {
   return (
@@ -19,10 +15,15 @@ export default App;
 
 
 
+import { use, useState } from "react";
+import Conversation from "./pages/conversation";
+import RAG from "./pages/rag";
+import { connectToMessagesWS, connectToTitelsWS } from "./redux/wsActions"
 import { useEffect } from "react";
 import { Routes, Route, useLocation, Outlet, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { createTheme, ThemeProvider } from "@mui/material";
+import { createTheme } from "@mui/material";
+import { ThemeProvider } from "./hooks/use-theme.jsx";
 import { autoLogout, isTokenExpired } from "./redux/authSlice";
 import PortectedRoutes from "./utils/PortectedRoutes";
 import Login from "./components/auth/Login";
@@ -32,6 +33,8 @@ import { fetchVitals } from "./redux/signsSlice";
 // import Navbar from "./components/layout/Navbar";
 // import Sidebar from "./components/layout/Sidebar";
 import Unauthorized from "./components/layout/Unauthorized";
+import { TopBar } from "./components/top-bar/top-bar";
+import { DynamicAuroraBackground } from "./components/aurora/dynamic-aurora-background";
 
 const DashboardLayout = () => {
   const location = useLocation();
@@ -67,18 +70,18 @@ function App() {
   useEffect(() => {
     console.log("Messages Connected:", websocketMessagesconnected);
     if (!websocketMessagesconnected) { dispatch(connectToMessagesWS()); }
-  }, [dispatch , websocketMessagesconnected]);
+  }, [dispatch, websocketMessagesconnected]);
 
   useEffect(() => {
     console.log("Titels Connected:", websocketTitlesconnected);
     if (!websocketTitlesconnected) { dispatch(connectToTitelsWS()); }
-  }, [dispatch , websocketTitlesconnected]);
+  }, [dispatch, websocketTitlesconnected]);
 
 
   const { isAuthenticated, user } = useSelector((state) => state.auth);
   useEffect(() => {
     if (isAuthenticated) {
-     // navigate("/conversation");
+      // navigate("/conversation");
     }
   }, [user, isAuthenticated]);
 
@@ -111,6 +114,7 @@ function App() {
   return (
     <div>
       <ThemeProvider theme={customTheme}>
+      <DynamicAuroraBackground />
         <Routes>
 
           {/* Public routes */}
@@ -122,6 +126,7 @@ function App() {
           <Route element={<PortectedRoutes />}>
             <Route element={<DashboardLayout />} />
             <Route path="/conversation" element={<Conversation />} />
+            <Route path="/rag" element={<RAG />} />
           </Route>
 
         </Routes>

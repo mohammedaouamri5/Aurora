@@ -119,8 +119,6 @@ function ChatGPTSidebarContent() {
 
 export default function ChatGPTSidebar() {
   return (
-    <ThemeProvider>
       <ChatGPTSidebarContent />
-    </ThemeProvider>
   )
 }
