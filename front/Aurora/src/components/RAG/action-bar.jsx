@@ -21,7 +21,7 @@ export const ActionBar = ({ choices, SetSelected }) => {
             <Button
               variant="contained"
               color="primary"
-              onClick={() => SetSelected(choice.name)}
+              onClick={() => SetSelected(choice)}
             >
               {choice.name}
             </Button>

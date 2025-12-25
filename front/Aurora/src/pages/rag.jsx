@@ -1,12 +1,11 @@
-
-import { useState } from "react"
-import { Box, Button, Tooltip } from "@mui/material"
-import { TopBar } from "./../components/top-bar/top-bar.jsx"
-import { DynamicAuroraBackground } from "./../components/aurora/dynamic-aurora-background"
-import { ActionBar } from "./../components/RAG/action-bar"
-import { useTheme } from "../hooks/use-theme"
+import { useState } from "react";
+import { Box } from "@mui/material";
+import { TopBar } from "./../components/top-bar/top-bar.jsx";
+import { useTheme } from "../hooks/use-theme";
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined';
+import FileUploader from "../components/RAG/upload-file.jsx";
+import { ActionBar } from "./../components/RAG/action-bar";
 
 export default function RAG() {
 
@@ -14,24 +13,29 @@ export default function RAG() {
     {
       name: "Search (By Name)",
       Icon: FindInPageOutlinedIcon,
+      Component: FileUploader
     },
     {
       name: "Upload file",
       Icon: UploadFileOutlinedIcon,
+      Component: FileUploader
     },
-  ]
+  ];
 
-  const [currentChoice, setCurrentChoice] = useState(choices[0].name)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const { theme } = useTheme()
+  // Default to the first choice
+  const [currentChoice, setCurrentChoice] = useState(choices[0]);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const { theme } = useTheme();
   const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen)
+    setSidebarOpen(!sidebarOpen);
   }
+
+  const DynamicComponent = currentChoice.Component;
+
   return (
     <>
       <TopBar sidebarOpen={sidebarOpen} onToggleSidebar={toggleSidebar} />
 
-      {/* B1 */}
       <Box
         sx={{
           width: "80%",
@@ -39,16 +43,17 @@ export default function RAG() {
           flexDirection: "column",
           gap: 2,
           position: "relative",
-          bgcolor: "red",
-          margin: "0 auto", // <-- centers horizontally
+          bgcolor: "transparent",
+          margin: "0 auto",
           marginTop: "10vh",
         }}
-      >        {/* B11: fixed-height actions */}
+      >
+        {/* B11: fixed-height actions */}
         <Box
           sx={{
             display: "flex",
             gap: 1,
-            height: 60, // fixed height
+            height: 60,
             bgcolor: theme.SIDEBAR_BG,
             borderRadius: 2,
             alignItems: "center",
@@ -62,7 +67,7 @@ export default function RAG() {
         {/* B12: dynamic content */}
         <Box
           sx={{
-            minHeight: 100, // minimal height
+            minHeight: 100,
             bgcolor: theme.CHAT_BG,
             borderRadius: 2,
             padding: 2,
@@ -71,20 +76,10 @@ export default function RAG() {
             justifyContent: "center",
           }}
         >
-          {currentChoice ? <Box>{currentChoice}</Box> : <Box>Select an action</Box>}
+          {DynamicComponent ? <DynamicComponent /> : <Box>Select an action</Box>}
         </Box>
       </Box>
-
     </>
-
-  )
+  );
 }
-
-
-
-
-
-
-
-
 
