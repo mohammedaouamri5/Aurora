@@ -16,7 +16,6 @@ import (
 )
 
 func UpdateFiles(ctx *gin.Context) {
-
 	__userID, __exist := ctx.Get("UserID")
 	if !__exist {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": "unauthorized"})
@@ -46,17 +45,13 @@ func UpdateFiles(ctx *gin.Context) {
 			// Define custom path in the bucket
 			__uuid, _ := utile.FileMD5UUID(file)
 
-			if __exist , __err := utile.IsExist("files" , "file_id = '" + __uuid + "'") ; __exist {
+			if __exist, __err := utile.IsExist("files", "file_id = '"+__uuid+"'"); __exist {
 				log.Warn("File already exists, skipping insert")
 				continue
-			}else if __err != nil {
+			} else if __err != nil {
 				log.WithErr(__err).Error("Failed to generate file name")
 				continue
 			}
-
-
-
-
 
 			file.Seek(0, 0)
 			if __err != nil {
@@ -97,4 +92,42 @@ func UpdateFiles(ctx *gin.Context) {
 	}
 
 	ctx.Status(http.StatusOK)
+}
+
+func GetUsersFilesHeader(ctx *gin.Context) {
+
+	type Response struct {
+		FileID   string `db:"file_id"`
+		OwnerID  string `db:"owner_id"`
+		FileName string `db:"file_name"`
+		MetaData string `db:"meta_data"`
+	}
+	__userID, __exist := ctx.Get("UserID")
+	if !__exist {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	__query := `
+		SELECT
+			file_id,
+			owner_id,
+			file_name,
+			meta_data
+		FROM files
+		WHERE owner_id = $1
+	`
+
+	var response []Response
+
+	if err := initializers.Clients.RawX.Select(&response, __query, __userID); err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"files": response,
+	})
 }

@@ -72,6 +72,7 @@ func Routers(router *gin.Engine) {
 
 	{
 		router.POST("/RAG/upload-file", api.JWTauth, api.UpdateFiles)
+		router.GET("/RAG/my-docs", api.JWTauth, api.GetUsersFilesHeader)
 		router.POST("/RAG/:id/update-file", api.Audio)
 		router.POST("/RAG/:id/update-", api.Audio)
 	}

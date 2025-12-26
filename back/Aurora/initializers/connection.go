@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	_ "github.com/lib/pq"
+ 	"github.com/jmoiron/sqlx"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"github.com/mohammedaouamri5/Aurora/constant"
@@ -25,6 +27,7 @@ var Mutx = &sync.Mutex{}
 type Connaction struct {
 	Orm    *gorm.DB
 	Raw    *sql.DB
+	RawX   *sqlx.DB
 	Mongo  *mongo.Database
 	Redis  *redis.Client
 	Qdrant *qdrant.Client
@@ -82,6 +85,12 @@ func ConnectDB(config *Config) {
 		log.Fatal("❌ Failed to extract raw PostgreSQL connection:", err)
 	}
 	log.Info("✅ Extracted raw SQL DB connection")
+
+	Clients.RawX, err = sqlx.Open("postgres", dsn)
+	if err != nil {
+		log.Fatal("❌ Failed to extract RawX PostgreSQL connection:", err)
+	}
+	log.Info("✅ Extracted RawX SQL DB connection")
 
 	// --- MongoDB ---
 
