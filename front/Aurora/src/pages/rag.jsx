@@ -5,15 +5,16 @@ import { useTheme } from "../hooks/use-theme";
 import UploadFileOutlinedIcon from '@mui/icons-material/UploadFileOutlined';
 import FindInPageOutlinedIcon from '@mui/icons-material/FindInPageOutlined';
 import FileUploader from "../components/RAG/upload-file.jsx";
+import { MyDocsPage } from "../components/RAG/my-docs";
 import { ActionBar } from "./../components/RAG/action-bar";
 
 export default function RAG() {
 
   const choices = [
     {
-      name: "Search (By Name)",
+      name: "My Docs",
       Icon: FindInPageOutlinedIcon,
-      Component: FileUploader
+      Component: MyDocsPage
     },
     {
       name: "Upload file",
