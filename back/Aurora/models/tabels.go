@@ -18,7 +18,7 @@ type ModelConfig struct {
 	Name        string
 	Temperature float32
 	Max_tokens  int
-	Options     map[string]any `json:"options"`
+	Options     map[string]any `json:"options" gorm:"type:jsonb"`
 }
 
 type UserConfig struct {
@@ -57,3 +57,22 @@ type Chat struct {
 	ConversationID string    `bson:"conversationID" json:"conversationID"`
 	Messages       []Message `bson:"messages" json:"messages"`
 }
+
+type File struct {
+    FileID   uuid.UUID `gorm:"type:uuid;default:uuid_generate_v4();primaryKey"` // Primary key with UUID default
+    OwnerID  uuid.UUID `gorm:"type:uuid;not null"`                               // Foreign key referencing User
+    FileName string    `gorm:"type:varchar(255);not null"`                       // File name
+    MetaData string    `gorm:"type:text;not null"`                               // Metadata in JSON or string
+    Owner    User      `gorm:"foreignKey:OwnerID"`                               // Association with User
+}
+
+type FileMetaData struct {
+}
+
+
+
+
+
+
+
+

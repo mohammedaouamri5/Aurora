@@ -189,7 +189,7 @@ func JWTauth(c *gin.Context) {
 
 	claims := token.Claims.(*jwt.StandardClaims)
 
-	c.Set("id", claims.Issuer)
+	c.Set("UserID", claims.Issuer)
 
 	if claims.Issuer == initializers.Cfg.NULL_UUID {
 		c.JSON(401, gin.H{"message": "unauthorized"})

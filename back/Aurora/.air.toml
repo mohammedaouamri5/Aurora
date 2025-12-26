@@ -15,6 +15,7 @@ tmp_dir = "tmp"
       "open-webui-data" ,
       "postgres-data"   ,
       "mongo-data"      ,
+      "minio-data"      ,
       "whisper-data"    ,
       "qdrant-data"     ,
       "ollama-data" 

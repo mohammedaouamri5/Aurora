@@ -8,13 +8,14 @@ import (
 	"time"
 
 	"github.com/minio/minio-go/v7"
+	"github.com/minio/minio-go/v7/pkg/credentials"
+	"github.com/mohammedaouamri5/Aurora/constant"
 	"github.com/mohammedaouamri5/go-log/log"
 	ollama "github.com/ollama/ollama/api"
 	"github.com/qdrant/go-client/qdrant"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -118,7 +119,7 @@ func ConnectDB(config *Config) {
 	log.Info("✅ Connected to MinIO")
 
 	// Optional: create a default bucket if it doesn’t exist
-	bucketName := "data"
+	bucketName := constant.DefaultBucket()
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	exists, err := Clients.MinIO.BucketExists(ctx, bucketName)

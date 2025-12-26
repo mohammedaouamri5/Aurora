@@ -24,7 +24,6 @@ func Routers(router *gin.Engine) {
 
 	{
 		router.GET("/ws/messages", func(c *gin.Context) {
-
 			conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 			if err != nil {
 				c.String(500, "WebSocket upgrade failed")
@@ -35,11 +34,7 @@ func Routers(router *gin.Engine) {
 			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
 		})
 
-
-
-
 		router.GET("/ws/titles", func(c *gin.Context) {
-
 			conn, err := upgrader.Upgrade(c.Writer, c.Request, nil)
 			if err != nil {
 				log.WithErr(err).Error("WebSocket upgrade failed")
@@ -73,6 +68,12 @@ func Routers(router *gin.Engine) {
 		router.GET("/auth/user", api.JWTauth, api.User)
 		router.POST("/auth/logout", api.Logout)
 		router.POST("/auth/RegisterLogin", api.RegisterLogin)
+	}
+
+	{
+		router.POST("/RAG/upload-file", api.JWTauth, api.UpdateFiles)
+		router.POST("/RAG/:id/update-file", api.Audio)
+		router.POST("/RAG/:id/update-", api.Audio)
 	}
 
 	{

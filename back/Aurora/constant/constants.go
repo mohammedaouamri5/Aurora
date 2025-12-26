@@ -55,6 +55,9 @@ var DefaultUserConfig = models.UserConfig{
 var NewChat = "New Chat"
 
 
+func DefaultBucket() string {
+	return "data"
+}
 
 
 

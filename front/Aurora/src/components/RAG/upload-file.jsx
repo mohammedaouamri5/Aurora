@@ -10,104 +10,144 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
   Dialog,
   DialogTitle,
   DialogContent,
   DialogActions,
   TextField,
   IconButton,
+  Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { useTheme } from "../../hooks/use-theme";
+import { UploadFile } from "../../redux/file-upload";
+import { AuroraButton } from "../aurora/dynamic-aurora-button";
 
 export default function FileUploader() {
-  const [files, setFiles] = useState([]);
-  const [openDialog, setOpenDialog] = useState(false);
-  const [currentFileIndex, setCurrentFileIndex] = useState(null);
-  const [metadata, setMetadata] = useState({});
+  const { theme } = useTheme();
+
+  const [data, setData] = useState([]);
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(null);
+  const [metaDraft, setMetaDraft] = useState({});
   const [newKey, setNewKey] = useState("");
   const [newValue, setNewValue] = useState("");
 
-  const { theme } = useTheme();
+  /* ================= DROPZONE ================= */
 
   const onDrop = useCallback((acceptedFiles) => {
-    const newFiles = acceptedFiles.map((file) => ({
-      name: file.name,
-      size: file.size,
-      type: file.type,
-      metadata: {},
+    const mapped = acceptedFiles.map((file) => ({
+      File: file,
+      MetaData: {},
     }));
-    setFiles((prev) => [...prev, ...newFiles]);
+
+    setData((prev) => [...prev, ...mapped]);
   }, []);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
 
-  const handleOpenDialog = (index) => {
-    setCurrentFileIndex(index);
-    setMetadata({ ...files[index].metadata });
-    setOpenDialog(true);
+  /* ================= METADATA DIALOG ================= */
+
+  const openDialog = (index) => {
+    setActiveIndex(index);
+    setMetaDraft({ ...data[index].MetaData });
+    setDialogOpen(true);
   };
 
-  const handleCloseDialog = () => {
-    setOpenDialog(false);
+  const closeDialog = () => {
+    setDialogOpen(false);
     setNewKey("");
     setNewValue("");
   };
 
-  const handleAddMetadata = () => {
+  const addMeta = () => {
     if (!newKey.trim()) return;
 
-    const updatedMetadata = { ...metadata, [newKey]: newValue };
-    setMetadata(updatedMetadata);
-
-    const updatedFiles = [...files];
-    updatedFiles[currentFileIndex].metadata = updatedMetadata;
-    setFiles(updatedFiles);
-
+    const updated = { ...metaDraft, [newKey]: newValue };
+    updateMeta(updated);
     setNewKey("");
     setNewValue("");
   };
 
-  const handleRemoveMetadata = (key) => {
-    const updatedMetadata = { ...metadata };
-    delete updatedMetadata[key];
-    setMetadata(updatedMetadata);
+  const updateMeta = (updatedMeta) => {
+    setMetaDraft(updatedMeta);
 
-    const updatedFiles = [...files];
-    updatedFiles[currentFileIndex].metadata = updatedMetadata;
-    setFiles(updatedFiles);
+    setData((prev) => {
+      const copy = [...prev];
+      copy[activeIndex].MetaData = updatedMeta;
+      return copy;
+    });
   };
 
-  const handleMetadataChange = (key, value) => {
-    const updatedMetadata = { ...metadata, [key]: value };
-    setMetadata(updatedMetadata);
-
-    const updatedFiles = [...files];
-    updatedFiles[currentFileIndex].metadata = updatedMetadata;
-    setFiles(updatedFiles);
+  const removeMeta = (key) => {
+    const updated = { ...metaDraft };
+    delete updated[key];
+    updateMeta(updated);
   };
 
-  const handleRemoveFile = (index) => {
-    const updatedFiles = [...files];
-    updatedFiles.splice(index, 1);
-    setFiles(updatedFiles);
+  /* ================= FILE ACTIONS ================= */
+
+  const removeFile = (index) => {
+    setData((prev) => prev.filter((_, i) => i !== index));
   };
 
-  const handleSubmit = () => {
-    console.log("Submitted files:", files);
-    // Here you can implement the actual submit logic
+  /*   
+  const submitFile = () => {
+    if (!data.length) return;
+     UploadFile(
+      data.map((file) => file.File),
+      data.map((file) => file.MetaData),
+    );
   };
+  */
+
+  const submitFile = () => {
+    if (!data.length) return;
+    for (let i = 0; i < data.length; i++) {
+      UploadFile(
+        data[i].File,
+        data[i].MetaData,
+      );
+    }
+    setData([]);
+  };
+
+
+  /* ================= RENDER ================= */
+
+
+  const textFieldStyle = (theme) => ({
+    "& .MuiOutlinedInput-root": {
+      "& fieldset": {
+        borderColor: theme.BORDER_COLOR,
+      },
+      "&:hover fieldset": {
+        borderColor: theme.UPLOADER_BUTTON_BG,
+      },
+      "&.Mui-focused fieldset": {
+        borderColor: theme.UPLOADER_BUTTON_BG,
+      },
+    },
+  });
+
+
+  const GetSize = (bytes) => {
+    if (bytes < 1024) return `${bytes} bytes`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
+    if (bytes < 1024 * 1024 * 1024) return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
+    return `${(bytes / (1024 * 1024 * 1024)).toFixed(2)} GB`;
+  }
 
   return (
-    <Box sx={{ width: "100%", maxWidth: 700, margin: "0 auto", mt: 6 }}>
-      {/* Drag & Drop Area */}
+    <Box sx={{ width: "100%", maxWidth: 700, mx: "auto", mt: 6 }}>
+
+      {/* Dropzone */}
       <Paper
         {...getRootProps()}
         sx={{
           border: `2px dashed ${theme.UPLOADER_BORDER}`,
-          padding: 6,
+          p: 6,
           textAlign: "center",
           bgcolor: isDragActive ? theme.UPLOADER_HOVER_BG : theme.MAIN_BG,
           cursor: "pointer",
@@ -118,16 +158,17 @@ export default function FileUploader() {
         <input {...getInputProps()} />
         <Typography sx={{ color: theme.UPLOADER_TEXT, fontWeight: 500 }}>
           {isDragActive
-            ? "Drop your files here..."
-            : "Drag & drop files here, or click to select files"}
+            ? "Drop the files here..."
+            : "Drag and drop files here, or click to select files"}
         </Typography>
       </Paper>
 
       {/* Files Table */}
-      {files.length > 0 && (
+      {data.length > 0 && (
         <TableContainer
           component={Paper}
           sx={{
+            bgcolor: theme.MAIN_BG,
             border: `1px solid ${theme.BORDER_COLOR}`,
             borderRadius: 2,
             overflow: "hidden",
@@ -135,64 +176,95 @@ export default function FileUploader() {
         >
           <Table>
             <TableHead>
-              <TableRow sx={{ bgcolor: theme.UPLOADER_BUTTON_BG }}>
-                <TableCell sx={{ color: theme.UPLOADER_BUTTON_TEXT, fontWeight: 600 }}>Name</TableCell>
-                <TableCell sx={{ color: theme.UPLOADER_BUTTON_TEXT, fontWeight: 600 }}>Size (KB)</TableCell>
-                <TableCell sx={{ color: theme.UPLOADER_BUTTON_TEXT, fontWeight: 600 }}>Type</TableCell>
-                <TableCell sx={{ color: theme.UPLOADER_BUTTON_TEXT, fontWeight: 600 }}>
-                  Metadata
-                  <Button
-                    variant="contained"
+              <TableRow
+                sx={{
+                  bgcolor: theme.UPLOADER_BUTTON_BG,
+                }}
+              >
+                {["Name", "Size", "Type", "Actions"].map((label) => (
+                  <TableCell
+                    key={label}
                     sx={{
-                      ml: 2,
-                      backgroundColor: theme.UPLOADER_BUTTON_BG,
                       color: theme.UPLOADER_BUTTON_TEXT,
-                      fontSize: "0.8rem",
-                      padding: "2px 8px",
+                      fontWeight: 600,
+                      borderBottom: `1px solid ${theme.BORDER_COLOR}`,
                     }}
-                    onClick={handleSubmit}
                   >
-                    Submit
-                  </Button>
-                </TableCell>
+                    {label}
+                    {label == "Actions" ?
+                      <AuroraButton
+                        variant="contained"
+                        onClick={submitFile}
+                        sx={{
+                          ml: 2,
+                          bgcolor: theme.UPLOADER_BUTTON_BG,
+                          color: theme.UPLOADER_BUTTON_TEXT,
+                          "&:hover": {
+                            bgcolor: theme.UPLOADER_BUTTON_BG,
+                          },
+                        }}
+
+                      >Upload</AuroraButton> : null
+                    }
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
+
             <TableBody>
-              {files.map((file, index) => (
+              {data.map((item, index) => (
                 <TableRow
                   key={index}
                   sx={{
-                    bgcolor: theme.UPLOADER_ROW_ALT,
-                    "&:hover": { bgcolor: theme.UPLOADER_ROW_HOVER },
+                    bgcolor: theme.MAIN_BG,
+                    "&:hover": {
+                      bgcolor: theme.UPLOADER_ROW_HOVER,
+                    },
                   }}
                 >
-                  <TableCell sx={{ color: theme.UPLOADER_TEXT }}>{file.name}</TableCell>
-                  <TableCell sx={{ color: theme.UPLOADER_TEXT }}>
-                    {(file.size / 1024).toFixed(2)}
+                  <TableCell sx={{ color: theme.TEXT_PRIMARY }}>
+                    {item.File.name}
                   </TableCell>
-                  <TableCell sx={{ color: theme.UPLOADER_TEXT }}>{file.type || "Unknown"}</TableCell>
-                  <TableCell sx={{ color: theme.UPLOADER_TEXT }}>
-                    <Box sx={{ display: "flex", gap: 1, flexWrap: "wrap" }}>
+
+                  <TableCell sx={{ color: theme.TEXT_SECONDARY }}>
+                    {GetSize(item.File.size)}
+                  </TableCell>
+
+                  <TableCell sx={{ color: theme.TEXT_SECONDARY }}>
+                    {item.File.type || "Unknown"}
+                  </TableCell>
+
+                  <TableCell>
+                    <Box sx={{ display: "flex", gap: 1 }}>
                       <Button
-                        variant="outlined"
                         size="small"
+                        variant="outlined"
                         sx={{
                           borderColor: theme.UPLOADER_BUTTON_BG,
                           color: theme.UPLOADER_BUTTON_BG,
+                          "&:hover": {
+                            bgcolor: theme.UPLOADER_BUTTON_BG,
+                            color: theme.UPLOADER_BUTTON_TEXT,
+                          },
                         }}
-                        onClick={() => handleOpenDialog(index)}
+                        onClick={() => openDialog(index)}
                       >
                         Edit
                       </Button>
+
                       <Button
-                        variant="outlined"
                         size="small"
+                        variant="outlined"
+                        startIcon={<DeleteIcon />}
                         sx={{
                           borderColor: theme.RECORDING_RED,
                           color: theme.RECORDING_RED,
+                          "&:hover": {
+                            bgcolor: theme.RECORDING_RED,
+                            color: "#fff",
+                          },
                         }}
-                        onClick={() => handleRemoveFile(index)}
-                        startIcon={<DeleteIcon />}
+                        onClick={() => removeFile(index)}
                       >
                         Remove
                       </Button>
@@ -206,87 +278,164 @@ export default function FileUploader() {
       )}
 
       {/* Metadata Dialog */}
+
+
       <Dialog
-        open={openDialog}
-        onClose={handleCloseDialog}
+        open={dialogOpen}
+        onClose={closeDialog}
         fullWidth
         maxWidth="sm"
         PaperProps={{
-          sx: { bgcolor: theme.UPLOADER_DIALOG_BG, color: theme.TEXT_PRIMARY },
+          sx: {
+            bgcolor: theme.UPLOADER_DIALOG_BG,
+            color: theme.TEXT_PRIMARY,
+            borderRadius: 2,
+            border: `1px solid ${theme.BORDER_COLOR}`,
+          },
         }}
       >
-        <DialogTitle sx={{ color: theme.TEXT_PRIMARY }}>Edit Metadata</DialogTitle>
-        <DialogContent>
-          {Object.entries(metadata).map(([key, value]) => (
-            <Box key={key} sx={{ display: "flex", gap: 1, mb: 1, alignItems: "center" }}>
+        {/* ================= TITLE ================= */}
+        <DialogTitle
+          sx={{
+            color: theme.TEXT_PRIMARY,
+            borderBottom: `1px solid ${theme.BORDER_COLOR}`,
+            fontWeight: 600,
+          }}
+        >
+          Edit Metadata
+        </DialogTitle>
+
+        {/* ================= CONTENT ================= */}
+        <DialogContent sx={{ mt: 2 }}>
+          {Object.entries(metaDraft).map(([key, value]) => (
+            <Box
+              key={key}
+              sx={{
+                display: "flex",
+                gap: 1,
+                mb: 1.5,
+                alignItems: "center",
+              }}
+            >
               <TextField
                 label="Key"
                 value={key}
                 disabled
                 fullWidth
-                InputProps={{ style: { color: theme.TEXT_PRIMARY } }}
-                sx={{ "& .MuiInputLabel-root": { color: theme.TEXT_PRIMARY } }}
+                InputProps={{
+                  style: { color: theme.TEXT_PRIMARY },
+                }}
+                InputLabelProps={{
+                  style: { color: theme.TEXT_SECONDARY },
+                }}
+                sx={textFieldStyle(theme)}
               />
+
               <TextField
                 label="Value"
                 value={value}
-                onChange={(e) => handleMetadataChange(key, e.target.value)}
+                onChange={(e) =>
+                  updateMeta({ ...metaDraft, [key]: e.target.value })
+                }
                 fullWidth
-                InputProps={{ style: { color: theme.TEXT_PRIMARY } }}
-                sx={{ "& .MuiInputLabel-root": { color: theme.TEXT_PRIMARY } }}
+                InputProps={{
+                  style: { color: theme.TEXT_PRIMARY },
+                }}
+                InputLabelProps={{
+                  style: { color: theme.TEXT_SECONDARY },
+                }}
+                sx={textFieldStyle(theme)}
               />
+
               <IconButton
-                onClick={() => handleRemoveMetadata(key)}
-                sx={{ color: theme.RECORDING_RED }}
+                onClick={() => removeMeta(key)}
+                sx={{
+                  color: theme.RECORDING_RED,
+                  "&:hover": {
+                    bgcolor: `${theme.RECORDING_RED}22`,
+                  },
+                }}
               >
                 <DeleteIcon />
               </IconButton>
             </Box>
           ))}
 
-          <Box sx={{ display: "flex", gap: 2, mt: 2 }}>
+          {/* ================= ADD NEW META ================= */}
+          <Box sx={{ display: "flex", gap: 1.5, mt: 3 }}>
             <TextField
               label="Key"
               value={newKey}
               onChange={(e) => setNewKey(e.target.value)}
               fullWidth
-              InputProps={{ style: { color: theme.TEXT_PRIMARY } }}
-              sx={{ "& .MuiInputLabel-root": { color: theme.TEXT_PRIMARY } }}
+              InputProps={{
+                style: { color: theme.TEXT_PRIMARY },
+              }}
+              InputLabelProps={{
+                style: { color: theme.TEXT_SECONDARY },
+              }}
+              sx={textFieldStyle(theme)}
             />
+
             <TextField
               label="Value"
               value={newValue}
               onChange={(e) => setNewValue(e.target.value)}
               fullWidth
-              InputProps={{ style: { color: theme.TEXT_PRIMARY } }}
-              sx={{ "& .MuiInputLabel-root": { color: theme.TEXT_PRIMARY } }}
+              InputProps={{
+                style: { color: theme.TEXT_PRIMARY },
+              }}
+              InputLabelProps={{
+                style: { color: theme.TEXT_SECONDARY },
+              }}
+              sx={textFieldStyle(theme)}
             />
+
             <Button
               variant="contained"
-              sx={{
-                backgroundColor: theme.UPLOADER_BUTTON_BG,
-                color: theme.UPLOADER_BUTTON_TEXT,
-              }}
-              onClick={handleAddMetadata}
               startIcon={<AddIcon />}
+              onClick={addMeta}
+              sx={{
+                bgcolor: theme.UPLOADER_BUTTON_BG,
+                color: theme.UPLOADER_BUTTON_TEXT,
+                whiteSpace: "nowrap",
+                "&:hover": {
+                  bgcolor: theme.UPLOADER_BUTTON_BG,
+                  opacity: 0.9,
+                },
+              }}
             >
               Add
             </Button>
           </Box>
         </DialogContent>
-        <DialogActions>
+
+        {/* ================= ACTIONS ================= */}
+        <DialogActions
+          sx={{
+            borderTop: `1px solid ${theme.BORDER_COLOR}`,
+            px: 3,
+            py: 2,
+          }}
+        >
           <Button
+            variant="outlined"
+            onClick={closeDialog}
             sx={{
-              color: theme.UPLOADER_BUTTON_BG,
               borderColor: theme.UPLOADER_BUTTON_BG,
+              color: theme.UPLOADER_BUTTON_BG,
+              "&:hover": {
+                bgcolor: `${theme.UPLOADER_BUTTON_BG}22`,
+              },
             }}
-            onClick={handleCloseDialog}
           >
             Close
           </Button>
         </DialogActions>
       </Dialog>
-    </Box>
+
+
+    </Box >
   );
 }
 
