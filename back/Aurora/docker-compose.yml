@@ -1,7 +1,7 @@
 version: '2.8'
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: postgres_container
     env_file:
       - ./app.env
@@ -62,9 +62,16 @@ services:
     image: ollama/ollama:latest
     container_name: ollama_container
     ports:
-      - "11434:11434"  # Ollama API
+      - "11434:11434"
     volumes:
       - ./ollama-data:/root/.ollama
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
     networks:
       - app_network
   open-webui:
