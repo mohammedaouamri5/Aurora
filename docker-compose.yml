@@ -7,19 +7,30 @@ services:
     container_name: aurora-back
     network_mode: host
     working_dir: /app
+    environment:
+      - GOPATH=/go
+      - PATH=/usr/local/go/bin:/go/bin:$PATH
     command: >
-      bash -c "GOBIN=/usr/local/go/bin go install github.com/air-verse/air@latest
+      bash -c "GOBIN=/go/bin go install github.com/air-verse/air@latest
       && air -c .air.toml"
     env_file:
       - ./back/Aurora/app.env
     volumes:
       - ./back/Aurora:/app
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+      - go_bin:/go/bin
     depends_on:
-      - postgres
-      - mongodb
-      - redis
-      - qdrant
-      - minio
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_started
+      redis:
+        condition: service_started
+      qdrant:
+        condition: service_started
+      minio:
+        condition: service_started
     restart: unless-stopped
 
   front:
@@ -37,3 +48,6 @@ services:
 
 volumes:
   front_node_modules:
+  go_mod_cache:
+  go_build_cache:
+  go_bin:
