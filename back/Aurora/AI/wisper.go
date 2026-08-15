@@ -42,7 +42,7 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 	// Prepare request body
 	body := &bytes.Buffer{}
 	writer := multipart.NewWriter(body)
-	part, err := writer.CreateFormFile("file", filepath.Base(filePath))
+	part, err := writer.CreateFormFile("audio", filepath.Base(filePath))
 	if err != nil {
 		log.Error(err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create form data"})
@@ -58,11 +58,11 @@ func Wisper(ctx *gin.Context, filePath string) (string, error) {
 	// Add    other fields
 	_ = writer.WriteField("model", "ggml-large-v3-turbo-q5_0") // Change model if needed
 	_ = writer.WriteField("language", "en")                    // Change model if needed
-	_ = writer.WriteField("response_format", "text")
+	_ = writer.WriteField("response_format", "json")
 	writer.Close()
 
 	// Send request to Whisper API
-	req, err := http.NewRequest("POST", "http://localhost:8888/v1/audio/transcriptions", body)
+	req, err := http.NewRequest("POST", "http://localhost:8888/v1/whisper/transcribe", body)
 	if err != nil {
 		log.Error("Failed to create request:", err)
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create request"})

@@ -1,7 +1,7 @@
 version: '2.8'
 services:
   postgres:
-    image: postgres:latest
+    image: postgres:17
     container_name: postgres_container
     env_file:
       - ./app.env
@@ -39,10 +39,17 @@ services:
   whisper-server:
     image: ghcr.io/mutablelogic/go-whisper:latest
     container_name: whisper-server
+    entrypoint: ["bash", "-c"]
+    command: >
+      'gowhisper run --http.addr=0.0.0.0:80 --http.prefix=/v1 --whisper.gpu=false --models=/data &
+      sleep 3;
+      gowhisper download-model ggml-large-v3-turbo-q5_0.bin --http.addr=localhost:80 --http.prefix=/v1 || true;
+      wait'
     volumes:
       - ./whisper-data:/data
     ports:
       - "8888:80"
+    restart: unless-stopped
     networks:
       - app_network
   qdrant:
