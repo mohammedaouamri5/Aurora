@@ -1,0 +1,29 @@
+include:
+  - back/Aurora/docker-compose.yml
+
+services:
+  back:
+    build:
+      context: ./back/Aurora
+      dockerfile: Dockerfile
+    image: aurora-back
+    container_name: aurora-back
+    network_mode: host
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - qdrant
+      - minio
+    restart: unless-stopped
+
+  front:
+    build:
+      context: ./front/Aurora
+      dockerfile: Dockerfile
+    image: aurora-front
+    container_name: aurora-front
+    network_mode: host
+    depends_on:
+      - back
+    restart: unless-stopped

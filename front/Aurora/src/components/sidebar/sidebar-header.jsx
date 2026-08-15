@@ -1,37 +1,31 @@
 import { Box, Button } from "@mui/material"
 import { Add as AddIcon } from "@mui/icons-material"
-import { COLORS } from "../../constants/sidebar.js"
-import { useDispatch } from "react-redux";
-import { AddConversation } from "../../redux/ConversationaNameSlice.js";
+import { useTheme } from "../../hooks/use-theme"
 
-export function SidebarHeader() {
-  const dispatch = useDispatch();
-  const OnClickHandeler = () => {
-    const newConversation = {
-    };
-    dispatch(AddConversation(newConversation));
-  }
+export function SidebarHeader({ onNewChat }) {
+  const { theme } = useTheme()
+
   return (
     <Box sx={{ p: 2 }}>
       <Button
         fullWidth
         variant="outlined"
-        onClick={OnClickHandeler}
+        onClick={onNewChat}
         startIcon={<AddIcon />}
         sx={{
-          color: "white",
-          borderColor: COLORS.BORDER_COLOR,
+          color: theme.TEXT_PRIMARY,
+          borderColor: theme.BORDER_COLOR,
           textTransform: "none",
           justifyContent: "flex-start",
+          borderRadius: 1.5,
           "&:hover": {
-            bgcolor: COLORS.SIDEBAR_HOVER,
-            borderColor: COLORS.BORDER_COLOR,
+            bgcolor: theme.SIDEBAR_HOVER,
+            borderColor: theme.AURORA_PRIMARY,
           },
         }}
       >
         New chat
       </Button>
     </Box>
-
   )
 }

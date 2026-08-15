@@ -1,235 +1,214 @@
-import { Box, Typography, Paper, IconButton, Tooltip } from "@mui/material"
-import { 
-  Person as PersonIcon, 
+import { useState } from "react"
+import { Box, Typography, Tooltip, ButtonBase, Collapse, IconButton } from "@mui/material"
+import {
+  Person as PersonIcon,
   SmartToy as BotIcon,
   Settings as SystemIcon,
+  Psychology as PsychologyIcon,
   ExpandMore as ExpandMoreIcon,
-  ExpandLess as ExpandLessIcon
+  ContentCopy as ContentCopyIcon,
+  Check as CheckIcon,
 } from "@mui/icons-material"
-import { useState } from "react"
 import { useTheme } from "../../hooks/use-theme"
+import { MessageFormatter } from "./message-formatter.jsx"
+
+const ROLE_CONFIG = {
+  user: { label: "You", icon: PersonIcon, align: "flex-end" },
+  assistant: { label: "Aurora", icon: BotIcon, align: "flex-start" },
+  system: { label: "System", icon: SystemIcon, align: "flex-start" },
+}
+
+function formatTime(value) {
+  if (!value) return ""
+  const date = new Date(value)
+  if (isNaN(date.getTime())) return ""
+  return date.toLocaleString([], {
+    month: "short",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
 
 export function MessageBubble({ message }) {
-  const [isCollapsed, setIsCollapsed] = useState(false)
   const { theme } = useTheme()
-  
-  // Determine message type and styling
-  const getMessageConfig = () => {
-    switch (message.role) {
-      case "user":
-        return {
-          isUser: true,
-          justifyContent: "flex-end",
-          bgcolor: theme.MESSAGE_USER_BG,
-          color: theme.TEXT_PRIMARY,
-          border: `1px solid ${theme.AURORA_PRIMARY}`,
-          icon: <PersonIcon sx={{ fontSize: 18, color: "white" }} />,
-          avatarBg: theme.AURORA_PRIMARY,
-          displayName: message.messenger || "User"
-        }
-      case "system":
-        return {
-          isUser: false,
-          justifyContent: "flex-start",
-          bgcolor: theme.MESSAGE_ASSISTANT_BG,
-          color: theme.AURORA_ACCENT,
-          border: `1px solid ${theme.AURORA_ACCENT}`,
-          icon: <SystemIcon sx={{ fontSize: 18, color: "white" }} />,
-          avatarBg: theme.AURORA_ACCENT,
-          displayName: message.messenger || "System"
-        }
-      case "assistant":
-      default:
-        return {
-          isUser: false,
-          justifyContent: "flex-start",
-          bgcolor: theme.MESSAGE_ASSISTANT_BG,
-          color: theme.TEXT_PRIMARY,
-          border: `1px solid ${theme.BORDER_COLOR}`,
-          icon: <BotIcon sx={{ fontSize: 18, color: "white" }} />,
-          avatarBg: theme.PRIMARY_COLOR,
-          displayName: message.messenger || "Assistant"
-        }
-    }
+  const [showThinking, setShowThinking] = useState(false)
+  const [copied, setCopied] = useState(false)
+
+  const role = (message.role || "assistant").toLowerCase()
+  const config = ROLE_CONFIG[role] || ROLE_CONFIG.assistant
+  const isUser = role === "user"
+  const Icon = config.icon
+  const avatarBg = isUser ? theme.AURORA_PRIMARY : role === "system" ? theme.AURORA_ACCENT : theme.AURORA_SECONDARY
+  const timestamp = formatTime(message.createdAt || message.CreatedAt)
+
+  const thinking = (message.thinking || message.Thinking || "").trim()
+
+  const handleCopy = () => {
+    navigator.clipboard?.writeText(message.content || "").then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 1500)
+    })
   }
 
-  const config = getMessageConfig()
-
-  const handleToggleCollapse = () => {
-    setIsCollapsed(!isCollapsed)
-  }
+  const avatar = (
+    <Tooltip title={config.label} placement="top" arrow>
+      <Box
+        sx={{
+          width: 32,
+          height: 32,
+          borderRadius: "50%",
+          bgcolor: avatarBg,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+          boxShadow: `0 0 12px ${avatarBg}55`,
+        }}
+      >
+        <Icon sx={{ fontSize: 18, color: "#fff" }} />
+      </Box>
+    </Tooltip>
+  )
 
   return (
     <Box
       sx={{
         display: "flex",
-        justifyContent: config.justifyContent,
+        justifyContent: config.align,
         mb: 3,
         alignItems: "flex-start",
         gap: 2,
       }}
     >
-      {!config.isUser && (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <Tooltip title={config.displayName} placement="top" arrow>
-            <Box
+      {!isUser && avatar}
+
+      <Box sx={{ maxWidth: "72%", minWidth: 0 }}>
+        {!isUser && thinking && (
+          <Box sx={{ mb: 1 }}>
+            <ButtonBase
+              onClick={() => setShowThinking((v) => !v)}
               sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                bgcolor: config.avatarBg,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  boxShadow: `0 0 10px ${config.avatarBg}`,
-                },
-              }}
-              onClick={handleToggleCollapse}
-            >
-              {config.icon}
-            </Box>
-          </Tooltip>
-          {isCollapsed && (
-            <Typography
-              variant="caption"
-              sx={{
-                mt: 0.5,
-                fontSize: "10px",
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                gap: 0.5,
                 color: theme.TEXT_SECONDARY_CHAT,
-                textAlign: "center",
-                opacity: 0.8,
-              }}
-            >
-              {config.displayName}
-            </Typography>
-          )}
-        </Box>
-      )}
-
-{!isCollapsed && (
-        <Paper
-          elevation={1}
-          sx={{
-            p: 2,
-            maxWidth: "70%",
-            bgcolor: config.bgcolor,
-            color: config.color,
-            borderRadius: 2,
-            border: config.border,
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            backdropFilter: "blur(10px)",
-            "&:hover": {
-              transform: "translateY(-1px)",
-              boxShadow: `0 8px 25px ${theme.AURORA_PRIMARY}20`,
-              borderColor: theme.AURORA_SECONDARY,
-            },
-          }}
-          onClick={handleToggleCollapse}
-        >
-          <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1 }}>
-            <Typography
-              variant="body1"
-              sx={{
-                whiteSpace: "pre-wrap",
-                lineHeight: 1.5,
-                flex: 1,
-                "& code": {
-                  bgcolor: message.role === "user" 
-                    ? theme.BG_GRADIENT_1
-                    : message.role === "system" 
-                      ? theme.BG_GRADIENT_4
-                      : theme.BG_GRADIENT_2,
-                  padding: "2px 6px",
-                  borderRadius: "4px",
-                  fontFamily: "monospace",
-                  fontSize: "0.9em",
-                  border: `1px solid ${theme.BORDER_COLOR}`,
-                },
-              }}
-            >
-              {message.content}
-            </Typography>
-            
-            <IconButton
-              size="small"
-              sx={{
-                color: config.color,
-                opacity: 0.7,
-                minWidth: 20,
-                height: 20,
-                p: 0,
+                bgcolor: `${theme.AURORA_ACCENT}15`,
+                border: `1px solid ${theme.BORDER_COLOR}`,
                 "&:hover": {
-                  opacity: 1,
-                  bgcolor: theme.BG_GRADIENT_1,
+                  bgcolor: `${theme.AURORA_ACCENT}25`,
+                  color: theme.TEXT_PRIMARY,
                 },
               }}
             >
-              <ExpandLessIcon sx={{ fontSize: 16 }} />
-            </IconButton>
-          </Box>
+              <PsychologyIcon sx={{ fontSize: 16 }} />
+              <Typography variant="caption" sx={{ fontWeight: 600, fontSize: "11px" }}>
+                {showThinking ? "Hide thought process" : "Thought process"}
+              </Typography>
+              <ExpandMoreIcon
+                sx={{
+                  fontSize: 16,
+                  transition: "transform 0.2s ease",
+                  transform: showThinking ? "rotate(180deg)" : "none",
+                }}
+              />
+            </ButtonBase>
 
-          <Typography
-            variant="caption"
+            <Collapse in={showThinking} unmountOnExit>
+              <Box
+                sx={{
+                  mt: 1,
+                  p: 1.5,
+                  borderRadius: 1.5,
+                  borderLeft: `3px solid ${theme.AURORA_ACCENT}`,
+                  bgcolor: "rgba(0, 0, 0, 0.25)",
+                  color: theme.TEXT_SECONDARY_CHAT,
+                  fontSize: "13px",
+                  lineHeight: 1.6,
+                  fontStyle: "italic",
+                  whiteSpace: "pre-wrap",
+                  maxHeight: 320,
+                  overflow: "auto",
+                }}
+              >
+                {thinking}
+              </Box>
+            </Collapse>
+          </Box>
+        )}
+
+        <Box sx={{ position: "relative", "&:hover .message-copy": { opacity: 1 } }}>
+          <Box
             sx={{
-              display: "block",
-              mt: 1,
-              opacity: 0.7,
-              fontSize: "11px",
-              color: theme.TEXT_SECONDARY_CHAT,
+              bgcolor: isUser ? undefined : theme.MESSAGE_ASSISTANT_BG,
+              background: isUser
+                ? `linear-gradient(135deg, ${theme.AURORA_PRIMARY}, ${theme.AURORA_SECONDARY})`
+                : undefined,
+              color: isUser ? "#fff" : theme.TEXT_PRIMARY,
+              border: isUser ? "none" : `1px solid ${theme.BORDER_COLOR}`,
+              borderRadius: 2,
+              borderTopLeftRadius: isUser ? 12 : 4,
+              borderTopRightRadius: isUser ? 4 : 12,
+              p: 2,
+              backdropFilter: "blur(10px)",
+              boxShadow: isUser ? `0 4px 20px ${theme.AURORA_PRIMARY}30` : undefined,
             }}
           >
-            {message.timestamp}
-          </Typography>
-        </Paper>
-      )}
+            {isUser ? (
+              <Typography sx={{ whiteSpace: "pre-wrap", lineHeight: 1.5 }}>{message.content}</Typography>
+            ) : (
+              <MessageFormatter content={message.content} />
+            )}
+          </Box>
 
-      {config.isUser && (
-        <Box sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <Tooltip title={config.displayName} placement="top" arrow>
-            <Box
-              sx={{
-                width: 32,
-                height: 32,
-                borderRadius: "50%",
-                bgcolor: config.avatarBg,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexShrink: 0,
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                "&:hover": {
-                  transform: "scale(1.1)",
-                  boxShadow: `0 0 10px ${config.avatarBg}`,
-                },
-              }}
-              onClick={handleToggleCollapse}
-            >
-              {config.icon}
-            </Box>
-          </Tooltip>
-          {isCollapsed && (
-            <Typography
-              variant="caption"
-              sx={{
-                mt: 0.5,
-                fontSize: "10px",
-                color: theme.TEXT_SECONDARY_CHAT,
-                textAlign: "center",
-                opacity: 0.8,
-              }}
-            >
-              {config.displayName}
-            </Typography>
-          )}
+          <Box
+            sx={{
+              position: "absolute",
+              top: -10,
+              right: isUser ? "auto" : -6,
+              left: isUser ? -6 : "auto",
+              opacity: 0,
+              transition: "opacity 0.2s ease",
+            }}
+            className="message-copy"
+          >
+            <Tooltip title={copied ? "Copied!" : "Copy"} placement="top" arrow>
+              <IconButton
+                size="small"
+                onClick={handleCopy}
+                sx={{
+                  bgcolor: theme.SIDEBAR_HOVER,
+                  border: `1px solid ${theme.BORDER_COLOR}`,
+                  color: theme.TEXT_SECONDARY_CHAT,
+                  width: 26,
+                  height: 26,
+                  "&:hover": { color: theme.TEXT_PRIMARY },
+                }}
+              >
+                {copied ? <CheckIcon sx={{ fontSize: 15 }} /> : <ContentCopyIcon sx={{ fontSize: 15 }} />}
+              </IconButton>
+            </Tooltip>
+          </Box>
         </Box>
-      )}
+
+        <Typography
+          variant="caption"
+          sx={{
+            display: "block",
+            mt: 0.5,
+            opacity: 0.6,
+            color: theme.TEXT_SECONDARY_CHAT,
+            fontSize: "11px",
+            textAlign: isUser ? "right" : "left",
+          }}
+        >
+          {config.label}
+          {timestamp ? ` · ${timestamp}` : ""}
+        </Typography>
+      </Box>
+
+      {isUser && avatar}
     </Box>
   )
 }

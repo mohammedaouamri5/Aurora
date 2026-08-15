@@ -1,0 +1,39 @@
+include:
+  - back/Aurora/docker-compose.yml
+
+services:
+  back:
+    image: golang:1.26
+    container_name: aurora-back
+    network_mode: host
+    working_dir: /app
+    command: >
+      bash -c "GOBIN=/usr/local/go/bin go install github.com/air-verse/air@latest
+      && air -c .air.toml"
+    env_file:
+      - ./back/Aurora/app.env
+    volumes:
+      - ./back/Aurora:/app
+    depends_on:
+      - postgres
+      - mongodb
+      - redis
+      - qdrant
+      - minio
+    restart: unless-stopped
+
+  front:
+    image: node:22
+    container_name: aurora-front
+    network_mode: host
+    working_dir: /app
+    command: bash -c "npm install && npm run dev"
+    volumes:
+      - ./front/Aurora:/app
+      - front_node_modules:/app/node_modules
+    depends_on:
+      - back
+    restart: unless-stopped
+
+volumes:
+  front_node_modules:

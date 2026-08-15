@@ -1,5 +1,3 @@
-"use client"
-
 import { useState } from "react"
 import {
   Box,
@@ -13,9 +11,10 @@ import {
   MenuItem,
 } from "@mui/material"
 import { MoreHoriz as MoreHorizIcon, Edit as EditIcon, Delete as DeleteIcon } from "@mui/icons-material"
-import { COLORS } from "../../constants/sidebar.js"
+import { useTheme } from "../../hooks/use-theme"
 
 export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
+  const { theme } = useTheme()
   const [hoveredChat, setHoveredChat] = useState(null)
   const [anchorEl, setAnchorEl] = useState(null)
   const [menuChatId, setMenuChatId] = useState(null)
@@ -38,7 +37,7 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
           <Typography
             variant="caption"
             sx={{
-              color: COLORS.TEXT_SECONDARY,
+              color: theme.TEXT_SECONDARY,
               px: 2,
               py: 1,
               display: "block",
@@ -63,12 +62,15 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
                   onClick={() => onChatSelect(chat.ConversationID)}
                   sx={{
                     borderRadius: 1,
-                    color: "white",
+                    color: theme.TEXT_PRIMARY,
                     "&.Mui-selected": {
-                      bgcolor: COLORS.SIDEBAR_HOVER,
+                      bgcolor: theme.SIDEBAR_HOVER,
+                      "&:hover": {
+                        bgcolor: theme.SIDEBAR_HOVER,
+                      },
                     },
                     "&:hover": {
-                      bgcolor: COLORS.SIDEBAR_HOVER,
+                      bgcolor: theme.SIDEBAR_HOVER,
                     },
                     "& .MuiListItemText-primary": {
                       fontSize: "14px",
@@ -91,9 +93,9 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
                       size="small"
                       onClick={(e) => handleMenuClick(e, chat.ConversationID)}
                       sx={{
-                        color: COLORS.TEXT_SECONDARY,
+                        color: theme.TEXT_SECONDARY,
                         "&:hover": {
-                          color: "white",
+                          color: theme.TEXT_PRIMARY,
                         },
                       }}
                     >
@@ -114,9 +116,12 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
         onClose={handleMenuClose}
         PaperProps={{
           sx: {
-            bgcolor: COLORS.SIDEBAR_HOVER,
-            color: "white",
-            border: `1px solid ${COLORS.BORDER_COLOR}`,
+            bgcolor: theme.SIDEBAR_HOVER,
+            color: theme.TEXT_PRIMARY,
+            border: `1px solid ${theme.BORDER_COLOR}`,
+            borderRadius: 2,
+            backdropFilter: "blur(20px)",
+            boxShadow: `0 8px 32px rgba(0, 0, 0, 0.4)`,
           },
         }}
       >
@@ -124,7 +129,7 @@ export function ChatList({ groupedChats, selectedChat, onChatSelect }) {
           <EditIcon sx={{ mr: 1, fontSize: 16 }} />
           Rename
         </MenuItem>
-        <MenuItem onClick={handleMenuClose} sx={{ fontSize: "14px", color: "#ff6b6b" }}>
+        <MenuItem onClick={handleMenuClose} sx={{ fontSize: "14px", color: theme.RECORDING_RED }}>
           <DeleteIcon sx={{ mr: 1, fontSize: 16 }} />
           Delete
         </MenuItem>

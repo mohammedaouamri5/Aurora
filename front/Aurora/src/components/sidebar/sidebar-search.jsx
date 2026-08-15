@@ -1,10 +1,10 @@
-"use client"
-
 import { Box, TextField, InputAdornment } from "@mui/material"
 import { Search as SearchIcon } from "@mui/icons-material"
-import { COLORS } from "../../constants/sidebar.js"
+import { useTheme } from "../../hooks/use-theme"
 
 export function SidebarSearch({ searchQuery, onSearchChange }) {
+  const { theme } = useTheme()
+
   return (
     <Box sx={{ px: 2, pb: 2 }}>
       <TextField
@@ -16,26 +16,26 @@ export function SidebarSearch({ searchQuery, onSearchChange }) {
         InputProps={{
           startAdornment: (
             <InputAdornment position="start">
-              <SearchIcon sx={{ color: COLORS.TEXT_SECONDARY, fontSize: 18 }} />
+              <SearchIcon sx={{ color: theme.TEXT_SECONDARY, fontSize: 18 }} />
             </InputAdornment>
           ),
           sx: {
-            bgcolor: COLORS.SIDEBAR_HOVER,
-            color: "white",
+            bgcolor: theme.SIDEBAR_HOVER,
+            color: theme.TEXT_PRIMARY,
             "& .MuiOutlinedInput-notchedOutline": {
-              borderColor: COLORS.BORDER_COLOR,
+              borderColor: theme.BORDER_COLOR,
             },
             "&:hover .MuiOutlinedInput-notchedOutline": {
-              borderColor: COLORS.BORDER_COLOR,
+              borderColor: theme.BORDER_COLOR,
             },
             "&.Mui-focused .MuiOutlinedInput-notchedOutline": {
-              borderColor: COLORS.PRIMARY_GREEN,
+              borderColor: theme.AURORA_PRIMARY,
             },
           },
         }}
         sx={{
           "& .MuiInputBase-input::placeholder": {
-            color: COLORS.TEXT_SECONDARY,
+            color: theme.TEXT_SECONDARY,
             opacity: 1,
           },
         }}

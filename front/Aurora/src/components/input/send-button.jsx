@@ -1,20 +1,21 @@
-"use client"
-
 import { IconButton } from "@mui/material"
 import { Send as SendIcon } from "@mui/icons-material"
-import { COLORS } from "../../constants/sidebar.js"
+import { useTheme } from "../../hooks/use-theme"
 
 export function SendButton({ onSend }) {
+  const { theme } = useTheme()
+
   return (
     <IconButton
       onClick={onSend}
       sx={{
-        bgcolor: COLORS.PRIMARY_GREEN,
-        color: "white",
+        bgcolor: theme.AURORA_PRIMARY,
+        color: "#ffffff",
         width: 40,
         height: 40,
         "&:hover": {
-          bgcolor: "#0d8f6f",
+          bgcolor: theme.AURORA_PRIMARY,
+          boxShadow: `0 0 15px ${theme.AURORA_PRIMARY}60`,
         },
       }}
     >

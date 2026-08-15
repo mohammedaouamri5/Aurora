@@ -1,6 +1,7 @@
 package constant
 
 import (
+	"strings"
 	"sync"
 
 	"github.com/google/uuid"
@@ -25,9 +26,10 @@ var DefaultAssistant = models.Assistant{
 
 var DefaultUserConfig = models.UserConfig{
 	MainChatter: models.ModelConfig{
-		Name:        "gemma3:270m",
+		Name:        "gemma4:12b",
 		Temperature: 0.8,
 		Max_tokens:  400,
+		Thinking:    true,
 		Options: map[string]interface{}{
 			"temperature":    0.7,
 			"num_ctx":        1024,
@@ -45,7 +47,7 @@ var DefaultUserConfig = models.UserConfig{
 			"temperature":    0.7,
 			"num_ctx":        1024,
 			"num_predict":    5,
-			"top_p":          0.9 ,
+			"top_p":          0.9,
 			"repeat_penalty": 2.1,
 			"num_thread":     8,
 		},
@@ -66,5 +68,16 @@ var CurrentChats sync.Map
 
 var WSmessages = wsm.NewManager()
 var WStitels = wsm.NewManager()
+
+// Broadcast sends data to every socket registered under a URL with the given
+// prefix (e.g. "/ws/messages/"). Each connection registers a unique URL so
+// WSM keeps every one of them open.
+func Broadcast(manager *wsm.Manager, prefix string, data []byte) {
+	for _, name := range manager.GetNames() {
+		if strings.HasPrefix(name, prefix) {
+			manager.Send(name, data)
+		}
+	}
+}
 
 

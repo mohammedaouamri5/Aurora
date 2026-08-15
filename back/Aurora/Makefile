@@ -56,3 +56,8 @@ Fill:
 	@echo "Filling the database... 🔥"
 	go run ./migrate/fill.go $(ARGS)
 	@echo "Database full! 👌"
+
+Seed:
+	@echo "Seeding dummy data... 🌱"
+	go run ./migrate/seed.go $(ARGS)
+	@echo "Dummy data seeded! ✅"

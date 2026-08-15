@@ -25,6 +25,7 @@ export const websocketMessages = store => next => action => {
       };
 
       WSM.onclose = () => {
+        WSM = null;
         store.dispatch({ type: 'WSM_DISCONNECTED' });
       };
 
@@ -32,6 +33,8 @@ export const websocketMessages = store => next => action => {
         console.error('WebSocket error:', error);
         store.dispatch({ type: 'WSM_ERROR', payload: error });
       };
+
+      break;
 
     case 'WSM_SEND':
       if (WSM && WSM.readyState === WebSocket.OPEN) {
@@ -72,6 +75,7 @@ export const websocketTitel = store => next => action => {
       };
 
       WST.onclose = () => {
+        WST = null;
         store.dispatch({ type: 'WST_DISCONNECTED' });
       };
 
@@ -79,6 +83,8 @@ export const websocketTitel = store => next => action => {
         console.error('WebSocket error:', error);
         store.dispatch({ type: 'WST_ERROR', payload: error });
       };
+
+      break;
 
     case 'WST_SEND':
       if (WST && WST.readyState === WebSocket.OPEN) {

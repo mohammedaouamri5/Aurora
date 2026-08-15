@@ -32,3 +32,20 @@ func PushMessageToMongodb(conversationID string, message models.Message) {
 
 	}
 }
+
+func LoadChatFromMongo(conversationID string) (models.Chat, error) {
+	__ctx, cancel := context.WithTimeout(context.Background(), 500*time.Millisecond)
+	defer cancel()
+
+	collection := initializers.Clients.Mongo.Collection("conversations")
+
+	filter := bson.M{"conversationID": conversationID}
+
+	var result models.Chat
+	if err := collection.FindOne(__ctx, filter).Decode(&result); err != nil {
+		log.Error(err.Error())
+		return result, err
+	}
+
+	return result, nil
+}

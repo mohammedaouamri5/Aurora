@@ -18,6 +18,7 @@ type ModelConfig struct {
 	Name        string
 	Temperature float32
 	Max_tokens  int
+	Thinking    bool // enable reasoning/thinking for models that support it
 	Options     map[string]any `json:"options" gorm:"type:jsonb"`
 }
 

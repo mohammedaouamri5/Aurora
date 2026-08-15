@@ -151,7 +151,7 @@ func RegisterLogin(c *gin.Context) {
 }
 
 func User(c *gin.Context) {
-	id, DoseExist := c.Get("id")
+	id, DoseExist := c.Get("UserID")
 	if !DoseExist {
 		c.JSON(401, gin.H{"message": "unauthorized"})
 		return

@@ -1,0 +1,9 @@
+tmp
+*.log
+postgres-data/
+mongo-data/
+minio-data/
+whisper-data/
+qdrant-data/
+ollama-data/
+open-webui-data/

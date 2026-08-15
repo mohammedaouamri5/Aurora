@@ -1,22 +1,21 @@
-import { Box } from "@mui/material"
+import { Box, Typography } from "@mui/material"
 import { MessageInput } from "./input/message-input.jsx"
 import { MessageContainer } from "./messages/message-container.jsx"
-import { COLORS } from "../constants/sidebar.js"
 import { useTheme } from "./../hooks/use-theme"
 
 export function MainContent({
-  sidebarOpen,
   isRecording,
   message,
   onMessageChange,
   onStartRecording,
   onStopRecording,
   onSendMessage,
-  selectedChat,
   messages,
   chatTitle,
-  onAddMessage,
+  isPending,
 }) {
+  const { theme } = useTheme()
+
   const handleToggleRecording = () => {
     if (isRecording) {
       onStopRecording()
@@ -27,24 +26,44 @@ export function MainContent({
 
   return (
     <Box
-      component="main"
       sx={{
-        flexGrow: 1,
-        transition: "margin-left 0.3s ease",
+        flex: 1,
+        minHeight: 0,
         display: "flex",
         flexDirection: "column",
-        pt: "64px", // Account for top bar
-        height: "100vh",
       }}
     >
+      {chatTitle && (
+        <Box
+          sx={{
+            px: 3,
+            py: 2,
+            borderBottom: `1px solid ${theme.BORDER_COLOR}`,
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              color: theme.TEXT_PRIMARY,
+              fontWeight: 600,
+              overflow: "hidden",
+              textOverflow: "ellipsis",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {chatTitle}
+          </Typography>
+        </Box>
+      )}
+
       {/* Messages Container */}
-      <MessageContainer messages={messages} onAddMessage={onAddMessage} />
+      <MessageContainer messages={messages} isPending={isPending} />
 
       {/* Input Area */}
       <Box
         sx={{
           p: 3,
-          borderTop: `1px solid ${COLORS.BORDER_COLOR}`,
+          borderTop: `1px solid ${theme.BORDER_COLOR}`,
         }}
       >
         <Box sx={{ maxWidth: 800, mx: "auto" }}>

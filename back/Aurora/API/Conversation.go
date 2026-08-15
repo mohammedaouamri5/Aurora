@@ -50,7 +50,7 @@ func NewChat(ctx *gin.Context) {
 		err = errors.Join(err, __err)
 	}
 
-	UserID, DoseExist := ctx.Get("id")
+	UserID, DoseExist := ctx.Get("UserID")
 	if !DoseExist {
 		ctx.JSON(401, gin.H{"message": "unauthorized"})
 		return
@@ -92,6 +92,8 @@ func NewChat(ctx *gin.Context) {
 		},
 	}
 
+	constant.CurrentChats.Store(newConversation.ConversationID.String(), messages)
+
 	SaveToMongoDB := func(newConversation models.Conversation, err error) bool {
 		conversation := models.Chat{
 			ConversationID: newConversation.ConversationID.String(),
@@ -125,7 +127,7 @@ func SELECTALLConversation(ctx *gin.Context) {
 		AssistantID    string
 		Titel          string
 	}
-	UserID, Exist := ctx.Get("id")
+	UserID, Exist := ctx.Get("UserID")
 	if !Exist {
 		ctx.JSON(401, gin.H{"message": "unauthorized"})
 		return

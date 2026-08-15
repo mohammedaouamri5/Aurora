@@ -1,17 +1,9 @@
 import React, { useEffect, useState } from "react";
-import {
-  Alert,
-  Button,
-  TextField,
-  Typography,
-  Divider,
-  Box,
-} from "@mui/material";
-import { FcGoogle } from "react-icons/fc";
-import { FaApple, FaFacebook } from "react-icons/fa";
+import { Alert, Button, TextField } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../../redux/authSlice";
 import { useDispatch, useSelector } from "react-redux";
+import { AuthLayout } from "./AuthLayout";
 
 const Signup = () => {
   const navigate = useNavigate();
@@ -65,39 +57,20 @@ const Signup = () => {
     }
   }, [authStatus, isAuthenticated]);
 
-  const socialProviders = [
-    { icon: <FcGoogle />, label: "Sign up with Google" },
-    { icon: <FaFacebook className="text-blue-800" />, label: "Sign up with Facebook" },
-    { icon: <FaApple />, label: "Sign up with Apple" },
-  ];
-
   return (
-    <Box
-      sx={{
-        width: "100%",
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        background: "#f9f9f9",
-      }}
+    <AuthLayout
+      eyebrow="LET'S GET YOU STARTED"
+      title="Create an account"
+      footer={
+        <>
+          Already have an account?{" "}
+          <Link to="/login" style={{ color: "inherit", fontWeight: 700 }}>
+            Login
+          </Link>
+        </>
+      }
     >
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{
-          width: 460,
-          p: 4,
-          borderRadius: 4,
-          backgroundColor: "#fff",
-          boxShadow: 3,
-        }}
-      >
-        <Box mb={4}>
-          <Typography variant="overline">LET'S GET YOU STARTED</Typography>
-          <Typography variant="h5">Create an account</Typography>
-        </Box>
-
+      <form onSubmit={handleSubmit}>
         <TextField
           fullWidth
           margin="normal"
@@ -155,41 +128,9 @@ const Signup = () => {
         >
           GET STARTED
         </Button>
-
-        <Divider sx={{ my: 3 }}>Or</Divider>
-
-        {socialProviders.map(({ icon, label }, idx) => (
-          <Button
-            key={idx}
-            fullWidth
-            variant="outlined"
-            sx={{
-              py: 1.5,
-              borderRadius: 2,
-              mb: 2,
-              textTransform: "none",
-              justifyContent: "flex-start",
-              pl: 6,
-              position: "relative",
-            }}
-          >
-            <Box sx={{ position: "absolute", left: 16, fontSize: 20 }}>
-              {icon}
-            </Box>
-            {label}
-          </Button>
-        ))}
-
-        <Typography variant="body2" align="center" mt={2}>
-          Already have an account?{" "}
-          <Link to="/login" style={{ fontWeight: "bold" }}>
-            Login
-          </Link>
-        </Typography>
-      </Box>
-    </Box>
+      </form>
+    </AuthLayout>
   );
 };
 
 export default Signup;
-

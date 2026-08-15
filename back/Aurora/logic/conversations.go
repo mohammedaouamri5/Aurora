@@ -15,7 +15,7 @@ import (
 
 func TextResponce(__ID string, __messages []models.Message) {
 	// get the Responce From LLM
-	text_responce, err := ai.OLLAMA(__messages, utile.GetUserConfig("").MainChatter, nil)
+	text_responce, thinking, err := ai.OLLAMA(__messages, utile.GetUserConfig("").MainChatter, nil)
 
 	if err != nil {
 		log.Error(err.Error())
@@ -28,6 +28,7 @@ func TextResponce(__ID string, __messages []models.Message) {
 		CreatedAt: &now,
 		Role:      "assistant",
 		Content:   text_responce,
+		Thinking:  thinking,
 	}
 
 	// Send the New Message to the front-end
@@ -38,60 +39,100 @@ func TextResponce(__ID string, __messages []models.Message) {
 		log.Error(__err.Error())
 		return
 	} else {
-		constant.WSmessages.Send("/ws/messages", __bytes)
+		constant.Broadcast(constant.WSmessages, "/ws/messages/", __bytes)
 	}
 	// Cach The Message
-	__messages = append([]models.Message{new_message}, __messages...)
+	__messages = append(append([]models.Message{}, __messages...), new_message)
 	constant.CurrentChats.Store(__ID, __messages)
 
 	// MK title
-	if true {
-		go MakeTitle(__ID, __messages)
-	}
+	go MakeTitle(__ID, __messages)
 
 	// Save New Message
 	go utile.PushMessageToMongodb(__ID, new_message)
 }
 
-func MakeTitle(__ID string, __messages []models.Message) {
-	messages := append(__messages , models.Message{
-			Role:    "user",
-			Content: "In 5 words maximum whats the topic of this conversation",
-	})
+const titlePrompt = "You create concise chat titles. Reply with only the title, no quotes or punctuation, 5 words or fewer."
 
-	// Get response from LLM
-	textResponse, err := ai.OLLAMA(messages, utile.GetUserConfig("").TitelGenerator, nil)
-	if err != nil {
-		log.Error(err.Error())
+func MakeTitle(__ID string, __messages []models.Message) {
+	// Only title the conversation once it has at least 5 user messages
+	var userMessages []models.Message
+	for _, msg := range __messages {
+		if msg.Role == "user" {
+			userMessages = append(userMessages, msg)
+		}
+	}
+	if len(userMessages) < 5 {
 		return
 	}
 
-	title := strings.TrimSpace(textResponse)
+	// Only generate once: keep "New Chat" otherwise
+	var currentTitle string
+	if err := initializers.Clients.Raw.QueryRow(
+		"SELECT titel FROM conversations WHERE conversation_id=$1", __ID,
+	).Scan(&currentTitle); err != nil {
+		log.WithErr(err).Error("Failed to load current title")
+		return
+	}
+	if currentTitle != "" && currentTitle != constant.NewChat {
+		return
+	}
 
-	if len(title) > 20 {title = title[:20]}
+	// Build a focused prompt from the conversation (no system prompt)
+	titleMessages := make([]models.Message, 0, len(userMessages)+2)
+	titleMessages = append(titleMessages, models.Message{Role: "system", Content: titlePrompt})
+	titleMessages = append(titleMessages, userMessages...)
+	titleMessages = append(titleMessages, models.Message{
+		Role:    "user",
+		Content: "Title for this conversation:",
+	})
 
-	log.Info("New Title: " + title)
+	textResponse, _, err := ai.OLLAMA(titleMessages, utile.GetUserConfig("").TitelGenerator, nil)
+	if err != nil {
+		log.WithErr(err).Error("Failed to generate title")
+	}
+
+	title := ""
+	if err == nil {
+		title = cleanTitle(textResponse)
+	}
+	if title == "" || title == "Error" {
+		title = cleanTitle(userMessages[0].Content)
+	}
+	if title == "" {
+		return
+	}
 
 	sql := `UPDATE public.conversations SET titel=$1 WHERE conversation_id =$2 ;`
-
-	result, err := initializers.Clients.Raw.Exec(sql, title, __ID)
-	if err != nil {
-		log.Error("Failed to update title: " + err.Error())
+	if _, err := initializers.Clients.Raw.Exec(sql, title, __ID); err != nil {
+		log.WithErr(err).Error("Failed to update title")
 		return
 	}
 
 	if __bytes, __err := json.Marshal(constant.TitleStreem{
 		ConversationID: __ID,
-		Title:   title,
+		Title:          title,
 	}); __err != nil {
 		log.Error(__err.Error())
 		return
 	} else {
-		constant.WSmessages.Send("/ws/titles", __bytes)
+		constant.Broadcast(constant.WStitels, "/ws/titles/", __bytes)
 
 		log.WithField("title", &title).WithField("conversation_id", &__ID).WithField("type", "title").Info(" title for conversation is Sended")
 	}
 
 	log.Info("Updated title for conversation " + __ID + ": " + title)
-	_ = result // avoid unused warning
+}
+
+func cleanTitle(raw string) string {
+	title := strings.TrimSpace(raw)
+	title = strings.TrimPrefix(title, "Title:")
+	title = strings.Trim(title, "\"“”'\n\r\t -—")
+	title = strings.TrimSpace(title)
+
+	runes := []rune(title)
+	if len(runes) > 40 {
+		title = string(runes[:40])
+	}
+	return strings.TrimSpace(title)
 }

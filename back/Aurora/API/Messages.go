@@ -126,15 +126,21 @@ func SendTextMessage(ctx *gin.Context) {
 
 	messages, IsOk := constant.CurrentChats.Load(*request.ConversationID)
 	if !IsOk {
-		log.
-			WithField("conversationID", *request.ConversationID).
-			WithField("messages", messages).
-			Error("The messages of %s is not stord yet", *request.ConversationID)
-		ctx.Status(http.StatusInternalServerError)
-		return
+		chat, loadErr := utile.LoadChatFromMongo(*request.ConversationID)
+		if loadErr != nil {
+			log.
+				WithField("conversationID", *request.ConversationID).
+				WithField("error", loadErr.Error()).
+				Error("The messages of %s could not be loaded", *request.ConversationID)
+			ctx.Status(http.StatusInternalServerError)
+			return
+		}
+		messages = chat.Messages
+		constant.CurrentChats.Store(*request.ConversationID, messages)
 	}
 
 	messages = append(messages.([]models.Message), message)
+	constant.CurrentChats.Store(*request.ConversationID, messages)
 	go logic.TextResponce(*request.ConversationID, messages.([]models.Message))
 
 	ctx.JSON(http.StatusOK, message)

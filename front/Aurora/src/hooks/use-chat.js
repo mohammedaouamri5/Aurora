@@ -2,8 +2,19 @@ import { useState, useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { GetConversations } from "../redux/ConversationaNameSlice";
 import { GetMessages } from "../redux/MessegesSlice";
-import { sampleMessages } from "./../data/sample-messages"
-import { sampleChats } from "./../data/sample-chats"
+
+function toDateKey(value) {
+  if (!value) return "Today";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "Today";
+  const today = new Date();
+  const yesterday = new Date();
+  yesterday.setDate(today.getDate() - 1);
+
+  if (date.toDateString() === today.toDateString()) return "Today";
+  if (date.toDateString() === yesterday.toDateString()) return "Yesterday";
+  return date.toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+}
 
 export function useChat() {
   const [selectedChat, setSelectedChat] = useState(null);
@@ -13,65 +24,49 @@ export function useChat() {
   const dispatchMessages = useDispatch();
   const {
     data: Conversations,
-    status: conversationsStatus,
-    error: conversationsError
   } = useSelector((state) => state.ConversationsName);
 
-  const { data: Messages,
-    status: messagesStatus,
-    error: messagesError
-  } = useSelector((state) => state.Messages);
-
-  const fullState = useSelector((state) => state);
-
-
+  const { data: Messages } = useSelector((state) => state.Messages);
 
   useEffect(() => {
     dispatchConversationsName(GetConversations());
   }, []);
 
-
   const groupedChats = useMemo(() => {
-    const chats = Conversations || [];
+    const chats = Array.isArray(Conversations) ? Conversations : [];
 
-    if (
-      !Array.isArray(chats)
-    ) { return {} }
-
-
-
-
-    const filtered = chats.filter((chat) => chat.Titel.toLowerCase().includes(searchQuery.toLowerCase()));
-    filtered.sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
+    const filtered = chats
+      .filter((chat) =>
+        (chat.Titel || "").toLowerCase().includes(searchQuery.toLowerCase())
+      )
+      .sort((a, b) => new Date(b.CreatedAt) - new Date(a.CreatedAt));
 
     const groups = {};
     filtered.forEach((chat) => {
-      if (!groups[chat.CreatedAt]) {
-        groups[chat.CreatedAt] = [];
+      const key = toDateKey(chat.CreatedAt);
+      if (!groups[key]) {
+        groups[key] = [];
       }
-      groups[chat.CreatedAt].push(chat);
+      groups[key].push(chat);
     });
 
     return groups;
   }, [Conversations, searchQuery]);
 
   const currentMessages = useMemo(() => {
-    // console.log("Messages", Messages)
-    // console.log("Conversations", Conversations)
     return selectedChat ? Messages[selectedChat] || [] : [];
   }, [selectedChat, Messages]);
 
-
-
   const currentChatTitle = useMemo(() => {
-    const chat = sampleChats.find((c) => c.id === selectedChat)
-    return chat ? chat.title : null
-  }, [selectedChat])
-
+    const chats = Array.isArray(Conversations) ? Conversations : [];
+    const chat = chats.find((c) => c.ConversationID === selectedChat);
+    return chat ? chat.Titel : null;
+  }, [Conversations, selectedChat]);
 
   useEffect(() => {
-    dispatchMessages(GetMessages(
-      { ConversationID: selectedChat }));
+    if (selectedChat) {
+      dispatchMessages(GetMessages({ ConversationID: selectedChat }));
+    }
   }, [dispatchMessages, selectedChat]);
 
   return {
@@ -84,5 +79,3 @@ export function useChat() {
     currentChatTitle,
   }
 }
-
-

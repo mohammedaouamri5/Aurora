@@ -37,7 +37,7 @@ curl http://localhost:1234/api/v0/chat/completions \
 */
 // THIS WILL USE CONTEX
 
-func OLLAMA(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {
+func OLLAMA(messages []models.Message, model models.ModelConfig, result chan string) (string, string, error) {
 	ctx := context.Background()
 
 	ollamaMessages := make([]ollama.Message, len(messages))
@@ -57,35 +57,28 @@ func OLLAMA(messages []models.Message, model models.ModelConfig, result chan str
 		Messages: ollamaMessages,
 		Stream:   &stream,
 	}
-
+	if model.Thinking {
+		req.Think = &ollama.ThinkValue{Value: true}
+	}
 
 	var finalResult strings.Builder
+	var finalThinking strings.Builder
 
 	respFunc := func(resp ollama.ChatResponse) error {
 
-		// log.Infof(
-		//		"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
-		//		resp.Message.Content,
-		//		ollamaMessages,
-		//)
-
 		finalResult.WriteString(resp.Message.Content)
-		// log.Infof(
-		// 	"resp.Message.Content	: %s	\nollamaMessages			: %+v	\n",
-		// 	resp.Message.Content,
-		// 	ollamaMessages,
-		// )
+		finalThinking.WriteString(resp.Message.Thinking)
 		return nil
 	}
 
 	// log.Infof("ChatRequest: %s", b)
 	err := initializers.Clients.Ollama.Chat(ctx, req, respFunc)
 	if err != nil {
-		return "Error", err
+		return "Error", "", err
 	}
 
 	// Return the full collected response
-	return finalResult.String(), nil
+	return finalResult.String(), finalThinking.String(), nil
 }
 
 func LLM(messages []models.Message, model models.ModelConfig, result chan string) (string, error) {

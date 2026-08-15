@@ -1,8 +1,10 @@
 package route
 
 import (
+	"fmt"
 	log "github.com/mohammedaouamri5/go-log/log"
 	"net/http"
+	"sync/atomic"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -14,6 +16,8 @@ import (
 var upgrader = websocket.Upgrader{
 	CheckOrigin: func(r *http.Request) bool { return true },
 }
+
+var wsConnCounter uint64
 
 func Routers(router *gin.Engine) {
 
@@ -30,8 +34,11 @@ func Routers(router *gin.Engine) {
 				return
 			}
 
-			url := "/ws/messages"
-			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
+			url := fmt.Sprintf("/ws/messages/%d", atomic.AddUint64(&wsConnCounter, 1))
+			if err := constant.WSmessages.Open(url, conn, time.Millisecond); err != nil { // AutoClose = true
+				log.WithErr(err).Error("Failed to register messages socket")
+				conn.Close()
+			}
 		})
 
 		router.GET("/ws/titles", func(c *gin.Context) {
@@ -42,8 +49,11 @@ func Routers(router *gin.Engine) {
 				return
 			}
 
-			url := "/ws/titles"
-			constant.WSmessages.Open(url, conn, time.Millisecond) // AutoClose = true
+			url := fmt.Sprintf("/ws/titles/%d", atomic.AddUint64(&wsConnCounter, 1))
+			if err := constant.WStitels.Open(url, conn, time.Millisecond); err != nil { // AutoClose = true
+				log.WithErr(err).Error("Failed to register titles socket")
+				conn.Close()
+			}
 		})
 	}
 

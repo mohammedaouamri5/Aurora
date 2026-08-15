@@ -1,34 +1,34 @@
 
-import { AppBar, Toolbar, Typography, Box, IconButton, Tooltip, Button } from "@mui/material"
+import { Box, Typography, Button } from "@mui/material"
 import { useTheme } from "../../hooks/use-theme"
 
-export const ActionBar = ({ choices, SetSelected }) => {
+export const ActionBar = ({ choices, SetSelected, selected }) => {
   const { theme } = useTheme()
 
   return (
-    <AppBar
-      position="static" // so it fills the container width by default
-      sx={{
-        width: "100%",       // ensure full width
-        bgcolor: "transparent",
-        boxShadow: "none",
-        transition: "none",
-      }}
-    >
-      <Toolbar sx={{ display: "flex", justifyContent: "flex-start", gap: 2 }}>
-        {choices.map((choice) => (
-          <Tooltip key={choice.name} title={choice.name}>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={() => SetSelected(choice)}
-            >
-              {choice.name}
-            </Button>
-          </Tooltip>
-        ))}
-      </Toolbar>
-    </AppBar>
+    <Box sx={{ display: "flex", justifyContent: "flex-start", gap: 1, width: "100%" }}>
+      {choices.map((choice) => {
+        const isSelected = selected === choice.name
+        return (
+          <Button
+            key={choice.name}
+            variant="contained"
+            onClick={() => SetSelected(choice)}
+            sx={{
+              bgcolor: isSelected ? theme.AURORA_PRIMARY : "transparent",
+              color: isSelected ? "#ffffff" : theme.TEXT_SECONDARY,
+              border: `1px solid ${theme.BORDER_COLOR}`,
+              textTransform: "none",
+              "&:hover": {
+                bgcolor: isSelected ? theme.AURORA_PRIMARY : theme.SIDEBAR_HOVER,
+                color: isSelected ? "#ffffff" : theme.TEXT_PRIMARY,
+              },
+            }}
+          >
+            {choice.name}
+          </Button>
+        )
+      })}
+    </Box>
   )
 }
-

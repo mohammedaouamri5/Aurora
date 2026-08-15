@@ -160,7 +160,7 @@ const authSlice = createSlice({
         state.accessToken = action.payload.token;
         state.isAuthenticated = true;
         state.error = null;
-        window.location.href = "/";
+        window.location.href = "/conversation";
       })
       .addCase(login.rejected, (state, action) => {
         state.authStatus = "failed";

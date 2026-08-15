@@ -21,7 +21,7 @@ export const GetMessages = createAsyncThunk(
       });
 
       if (res.status != 200) {
-        console.log(err);
+        console.log("Something went wrong");
         return rejectWithValue("Something went wrong");
       }
 
@@ -46,7 +46,7 @@ export const SendTextMessage = createAsyncThunk(
       if (!token) return rejectWithValue("Unauthorized: No token found");
       const res = await axios.post(`${url}/Messages`, {
         ConversationID: ConversationID,
-        Textmessage, Textmessage,
+        Textmessage,
       }, {
         headers: {
           'Authorization': `${token}`,
@@ -57,7 +57,6 @@ export const SendTextMessage = createAsyncThunk(
 
       var result = res.data
       return { Message: result, ConversationID: ConversationID };
-      socket = new WebSocket(action.payload.url);
     } catch (err) {
       console.log(err);
       return rejectWithValue("Something went wrong");
@@ -93,6 +92,7 @@ const MessagesSlice = createSlice({
   name: "Messages",
   initialState: {
     data: {},
+    pending: {},
     status: "idle",
     error: null,
   },
@@ -107,27 +107,30 @@ const MessagesSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(SendTextMessage.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.payload;
-      })
       .addCase(SendTextMessage.pending, (state) => {
         state.status = "loading";
         state.error = null;
       })
       .addCase(GetMessages.fulfilled, (state, action) => {
         state.data = SetMessages({ Data: state.data, ...action.payload })
+        state.pending[action.payload.ConversationID] = false
         console.log("GetMessages" , state.data)
         return
       })
       .addCase(SendTextMessage.fulfilled, (state, action) => {
         state.data = PushMessage({ Data: state.data, ...action.payload })
+        state.pending[action.payload.ConversationID] = true
         console.log("GetMessages" , state.data)
         return
+      })
+      .addCase(SendTextMessage.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload;
       })
       .addCase("ADD_MESSAGE", (state, action) => {
         const { ConversationID, Message } = action.payload;
         state.data = PushMessage({ Data: state.data, ConversationID, Message });
+        state.pending[ConversationID] = false;
       })
   },
 });

@@ -3,12 +3,12 @@ const url = import.meta.env.VITE_BACK_END_URL_WSS;
 
 export const connectToMessagesWS = () => ({
   type: 'WSM_CONNECT',
-  payload: { url: `/ws/messages` }, // use your Go server's WSS endpoint
+  payload: { url: `${url}/ws/messages` }, // use your Go server's WSS endpoint
 });
 
 export const connectToTitelsWS = () => ({
   type: 'WST_CONNECT',
-  payload: { url: `/ws/titles` }, // use your Go server's WSS endpoint
+  payload: { url: `${url}/ws/titles` }, // use your Go server's WSS endpoint
 });
 
 

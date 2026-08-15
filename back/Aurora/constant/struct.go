@@ -17,13 +17,13 @@ type Wave struct {
 
 
 type MessageStreem struct {
-	ConversationID string 
-	Message models.Message
+	ConversationID string        `json:"ConversationID"`
+	Message        models.Message `json:"Message"`
 }
 
 type TitleStreem struct {
-	ConversationID string 
-	Title string
+	ConversationID string `json:"ConversationID"`
+	Title          string `json:"Title"`
 }
 
 
