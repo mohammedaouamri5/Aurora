@@ -26,7 +26,7 @@ var DefaultAssistant = models.Assistant{
 
 var DefaultUserConfig = models.UserConfig{
 	MainChatter: models.ModelConfig{
-		Name:        "gemma4:12b",
+		Name:        "qwen3:0.6b",
 		Temperature: 0.8,
 		Max_tokens:  400,
 		Thinking:    true,
@@ -40,9 +40,10 @@ var DefaultUserConfig = models.UserConfig{
 		},
 	},
 	TitelGenerator: models.ModelConfig{
-		Name:        "gemma3:270m",
+		Name:        "qwen3:0.6b",
 		Temperature: 0.6,
 		Max_tokens:  10,
+		Thinking:    false,
 		Options: map[string]interface{}{
 			"temperature":    0.7,
 			"num_ctx":        1024,
